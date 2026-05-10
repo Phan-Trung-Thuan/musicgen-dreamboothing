@@ -6,6 +6,7 @@ import argparse
 import librosa
 import numpy as np
 from multiprocess import set_start_method
+from concurrent.futures import ThreadPoolExecutor
 
 def main(args):
     try:
@@ -32,43 +33,84 @@ def main(args):
     
     raw_datasets = load_dataset("json", data_files=data_files)
     
-    max_target_length = args.max_duration_in_seconds * audio_encoder_feature_extractor.sampling_rate
+    max_target_length = int(args.max_duration_in_seconds * audio_encoder_feature_extractor.sampling_rate)
     num_codebooks = model.decoder.config.num_codebooks
     audio_encoder_pad_token_id = model.config.decoder.pad_token_id
+    sampling_rate = audio_encoder_feature_extractor.sampling_rate
 
-    # 2. Preprocessing Function
-    def preprocess_function(batch):
-        # Audio
-        audio_path = batch["audio_path"]
-        audio_array, _ = librosa.load(audio_path, sr=audio_encoder_feature_extractor.sampling_rate, mono=True)
-        if len(audio_array) > max_target_length:
-            audio_array = audio_array[:int(max_target_length)]
+    def load_single_audio(path):
+        try:
+            audio, _ = librosa.load(path, sr=sampling_rate, mono=True)
+            if len(audio) > max_target_length:
+                audio = audio[:max_target_length]
+            # Pad to max_target_length to allow batching
+            if len(audio) < max_target_length:
+                audio = np.pad(audio, (0, max_target_length - len(audio)))
+            return audio
+        except Exception as e:
+            print(f"Error loading {path}: {e}")
+            return np.zeros(max_target_length)
+
+    # 2. Batched Preprocessing Function
+    def preprocess_function(examples):
+        # Audio Paths
+        audio_paths = examples["audio_path"]
         
-        # Encode Audio to Tokens (The RAM saver)
+        # Parallel Audio Loading (CPU Bound)
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            audio_arrays = list(executor.map(load_single_audio, audio_paths))
+        
+        # Batch Encode Audio to Tokens (GPU accelerated)
         with torch.no_grad():
-            input_values = audio_encoder_feature_extractor(audio_array, sampling_rate=audio_encoder_feature_extractor.sampling_rate, return_tensors="pt").input_values.to(device)
-            labels = audio_decoder.encode(input_values)["audio_codes"]
+            # Convert list of arrays to single tensor [bsz, seq_len]
+            input_tensors = torch.from_numpy(np.stack(audio_arrays)).to(device)
             
-            # Apply delay pattern mask logic from dreambooth_musicgen.py
-            pad_labels = torch.ones((1, 1, num_codebooks, 1), device=device) * audio_encoder_pad_token_id
-            labels = torch.cat([pad_labels.to(labels.dtype), labels], dim=-1)
-            labels, delay_pattern_mask = model_decoder.build_delay_pattern_mask(labels.squeeze(0), audio_encoder_pad_token_id, labels.shape[-1] + num_codebooks)
-            labels = model_decoder.apply_delay_pattern_mask(labels, delay_pattern_mask)
-            # labels is [num_codebooks, seq_len]
-            batch["labels"] = labels[:, 1:].cpu().numpy()
+            # Feature extraction (normalize)
+            # feature_extractor expects list of arrays or numpy array
+            inputs = audio_encoder_feature_extractor(
+                audio_arrays, 
+                sampling_rate=sampling_rate, 
+                return_tensors="pt",
+                padding=True
+            ).input_values.to(device)
+            
+            # Encode
+            labels = audio_decoder.encode(inputs)["audio_codes"]
+            
+            # Apply delay pattern mask logic (Vectorized as much as possible)
+            bsz = labels.shape[0]
+            pad_labels = torch.ones((bsz, 1, num_codebooks, 1), device=device, dtype=labels.dtype) * audio_encoder_pad_token_id
+            
+            # labels is [bsz, 1, num_codebooks, seq_len]
+            labels = torch.cat([pad_labels, labels], dim=-1)
+            
+            all_labels = []
+            for i in range(bsz):
+                l, delay_pattern_mask = model_decoder.build_delay_pattern_mask(
+                    labels[i].squeeze(0), 
+                    audio_encoder_pad_token_id, 
+                    labels.shape[-1] + num_codebooks
+                )
+                l = model_decoder.apply_delay_pattern_mask(l, delay_pattern_mask)
+                all_labels.append(l[:, 1:].cpu().numpy())
 
-        # Text
-        text = batch["text"]
-        batch["input_ids"] = processor.tokenizer(text)["input_ids"]
+        # Text (Tokenization is fast, but we do it batched anyway)
+        texts = examples["text"]
+        tokenized_text = processor.tokenizer(texts, padding=False)
         
-        return batch
+        return {
+            "labels": all_labels,
+            "input_ids": tokenized_text["input_ids"]
+        }
 
-    # 3. Map with RAM optimizations
-    print("Starting preprocessing (Audio -> Encodec tokens)...")
+    # 3. Map with Batching and Parallel Loading
+    print(f"Starting optimized preprocessing (Batch size: {args.batch_size})...")
     processed_datasets = raw_datasets.map(
         preprocess_function,
+        batched=True,
+        batch_size=args.batch_size,
         remove_columns=raw_datasets["train"].column_names,
-        writer_batch_size=100, # Flush to disk often
+        writer_batch_size=args.batch_size * 2,
         desc="Preprocess and Encode"
     )
 
@@ -83,6 +125,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_dir", type=str, required=True)
     parser.add_argument("--output_dir", type=str, required=True)
     parser.add_argument("--max_duration_in_seconds", type=float, default=30.0)
+    parser.add_argument("--batch_size", type=int, default=16)
     
     args = parser.parse_args()
     main(args)
