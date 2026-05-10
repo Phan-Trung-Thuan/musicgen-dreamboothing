@@ -830,6 +830,11 @@ def main():
         model.config.audio_encoder._name_or_path,
     )
 
+    # Training constants needed for DataCollator and processing
+    feature_extractor_input_name = processor.feature_extractor.model_input_names[0]
+    audio_encoder_pad_token_id = config.decoder.pad_token_id
+    num_codebooks = model.decoder.config.num_codebooks
+
     # 5. Now we preprocess the datasets including loading the audio, resampling and normalization
     # Thankfully, `datasets` takes care of automatically loading and resampling the audio,
     # so that we just need to set the correct target sampling rate and normalize the input
@@ -876,9 +881,6 @@ def main():
         target_audio_column_name = data_args.target_audio_column_name
         conditional_audio_column_name = data_args.conditional_audio_column_name
         text_column_name = data_args.text_column_name
-        feature_extractor_input_name = processor.feature_extractor.model_input_names[0]
-        audio_encoder_pad_token_id = config.decoder.pad_token_id
-        num_codebooks = model.decoder.config.num_codebooks
 
         if data_args.instance_prompt is not None:
             with training_args.main_process_first(desc="instance_prompt preprocessing"):
