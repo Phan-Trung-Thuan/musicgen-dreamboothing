@@ -526,19 +526,61 @@ def main():
             "add_metadata and text_column_name are both True, chose the former if you want automatically generated music descriptions or the latter if you want to use your own set of descriptions."
         )
 
-    if training_args.do_train:
-        raw_datasets["train"] = load_dataset(
-            data_args.dataset_name,
-            data_args.dataset_config_name,
-            split=data_args.train_split_name,
-            num_proc=num_workers,
-        )
+    # [FIX] Optimized Loading: Check for local JSONL files to avoid audio copy/cache
+    data_files = {}
+    if os.path.isdir(data_args.dataset_name):
+        for split in ["train", "test", "eval"]:
+            jsonl_path = os.path.join(data_args.dataset_name, f"{split}.jsonl")
+            if os.path.exists(jsonl_path):
+                data_files[split] = jsonl_path
+    
+    if data_files:
+        logger.info(f"Loading dataset from local JSONL files: {data_files}")
+        local_raw_datasets = load_dataset("json", data_files=data_files)
+        if "train" in local_raw_datasets and training_args.do_train:
+            raw_datasets["train"] = local_raw_datasets["train"]
+        if "test" in local_raw_datasets and training_args.do_eval:
+            raw_datasets["eval"] = local_raw_datasets["test"]
+        if "eval" in local_raw_datasets and training_args.do_eval:
+             raw_datasets["eval"] = local_raw_datasets["eval"]
+        
+        # If testing on Vietnamese dataset, it uses 'audio_path' column
+        if "audio_path" in raw_datasets[next(iter(raw_datasets.keys()))].column_names:
+            data_args.target_audio_column_name = "audio_path"
+    else:
+        if training_args.do_train:
+            raw_datasets["train"] = load_dataset(
+                data_args.dataset_name,
+                data_args.dataset_config_name,
+                split=data_args.train_split_name,
+                num_proc=num_workers,
+            )
 
+            if data_args.max_train_samples is not None:
+                raw_datasets["train"] = (
+                    raw_datasets["train"]
+                    .shuffle()
+                    .select(range(data_args.max_train_samples))
+                )
+
+        if training_args.do_eval:
+            raw_datasets["eval"] = load_dataset(
+                data_args.dataset_name,
+                data_args.dataset_config_name,
+                split=data_args.eval_split_name,
+                num_proc=num_workers,
+            )
+
+            if data_args.max_eval_samples is not None:
+                raw_datasets["eval"] = raw_datasets["eval"].select(
+                    range(data_args.max_eval_samples)
+                )
+
+    if training_args.do_train:
         if data_args.target_audio_column_name not in raw_datasets["train"].column_names:
             raise ValueError(
-                f"--target_audio_column_name '{data_args.target_audio_column_name}' not found in dataset '{data_args.dataset_name}'."
-                " Make sure to set `--target_audio_column_name` to the correct audio column - one of"
-                f" {', '.join(raw_datasets['train'].column_names)}."
+                f"--target_audio_column_name '{data_args.target_audio_column_name}' not found in dataset."
+                " Make sure to set `--target_audio_column_name` to the correct audio column."
             )
 
         if data_args.instance_prompt is not None:
@@ -547,32 +589,11 @@ def main():
             )
         elif data_args.text_column_name not in raw_datasets["train"].column_names:
             raise ValueError(
-                f"--text_column_name {data_args.text_column_name} not found in dataset '{data_args.dataset_name}'. "
-                "Make sure to set `--text_column_name` to the correct text column - one of "
-                f"{', '.join(raw_datasets['train'].column_names)}."
+                f"--text_column_name {data_args.text_column_name} not found in dataset. "
+                "Make sure to set `--text_column_name` to the correct text column."
             )
         elif data_args.text_column_name is None and data_args.instance_prompt is None:
             raise ValueError("--instance_prompt or --text_column_name must be set.")
-
-        if data_args.max_train_samples is not None:
-            raw_datasets["train"] = (
-                raw_datasets["train"]
-                .shuffle()
-                .select(range(data_args.max_train_samples))
-            )
-
-    if training_args.do_eval:
-        raw_datasets["eval"] = load_dataset(
-            data_args.dataset_name,
-            data_args.dataset_config_name,
-            split=data_args.eval_split_name,
-            num_proc=num_workers,
-        )
-
-        if data_args.max_eval_samples is not None:
-            raw_datasets["eval"] = raw_datasets["eval"].select(
-                range(data_args.max_eval_samples)
-            )
 
     if data_args.audio_separation:
         try:
@@ -877,13 +898,25 @@ def main():
         # load audio
         target_sample = batch[target_audio_column_name]
         
+        # [FIX] Manual load if it's a path (string) to avoid HF cache explosion
+        if isinstance(target_sample, str):
+            import librosa
+            audio_array, _ = librosa.load(
+                target_sample, 
+                sr=audio_encoder_feature_extractor.sampling_rate,
+                mono=True
+            )
+            sampling_rate = audio_encoder_feature_extractor.sampling_rate
+        else:
+            audio_array = target_sample["array"].squeeze()
+            sampling_rate = target_sample["sampling_rate"]
+
         # [FIX] Truncate audio if it's longer than max_target_length
-        audio_array = target_sample["array"].squeeze()
         if len(audio_array) > max_target_length:
             audio_array = audio_array[:int(max_target_length)]
             
         labels = audio_encoder_feature_extractor(
-            audio_array, sampling_rate=target_sample["sampling_rate"]
+            audio_array, sampling_rate=sampling_rate
         )
         batch["labels"] = labels["input_values"]
 
