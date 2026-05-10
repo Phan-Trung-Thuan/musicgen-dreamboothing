@@ -997,9 +997,11 @@ def main():
     )
 
     # Freeze Encoders
-    model.freeze_audio_encoder()
+    for param in model.audio_encoder.parameters():
+        param.requires_grad = False
     if model_args.freeze_text_encoder:
-        model.freeze_text_encoder()
+        for param in model.text_encoder.parameters():
+            param.requires_grad = False
 
     if model_args.guidance_scale is not None:
         model.generation_config.guidance_scale = model_args.guidance_scale
