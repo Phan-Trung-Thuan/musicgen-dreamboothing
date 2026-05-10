@@ -822,32 +822,32 @@ def main():
     # via the `feature_extractor`
 
     # resample target audio
-    dataset_sampling_rate = (
-        next(iter(raw_datasets.values()))
-        .features[data_args.target_audio_column_name]
-        .sampling_rate
-    )
-    if dataset_sampling_rate != audio_encoder_feature_extractor.sampling_rate:
-        raw_datasets = raw_datasets.cast_column(
-            data_args.target_audio_column_name,
-            datasets.features.Audio(
-                sampling_rate=audio_encoder_feature_extractor.sampling_rate
-            ),
-        )
+    features = next(iter(raw_datasets.values())).features
+    audio_feature = features[data_args.target_audio_column_name]
 
-    if data_args.conditional_audio_column_name is not None:
-        dataset_sampling_rate = (
-            next(iter(raw_datasets.values()))
-            .features[data_args.conditional_audio_column_name]
-            .sampling_rate
-        )
-        if dataset_sampling_rate != processor.feature_extractor.sampling_rate:
+    # [FIX] Only check sampling_rate if it's an Audio feature. 
+    # If it's a string path (Zero-Copy), we handle resampling during manual loading.
+    if hasattr(audio_feature, "sampling_rate"):
+        dataset_sampling_rate = audio_feature.sampling_rate
+        if dataset_sampling_rate != audio_encoder_feature_extractor.sampling_rate:
             raw_datasets = raw_datasets.cast_column(
-                data_args.conditional_audio_column_name,
+                data_args.target_audio_column_name,
                 datasets.features.Audio(
-                    sampling_rate=processor.feature_extractor.sampling_rate
+                    sampling_rate=audio_encoder_feature_extractor.sampling_rate
                 ),
             )
+
+    if data_args.conditional_audio_column_name is not None:
+        cond_audio_feature = features[data_args.conditional_audio_column_name]
+        if hasattr(cond_audio_feature, "sampling_rate"):
+            dataset_sampling_rate = cond_audio_feature.sampling_rate
+            if dataset_sampling_rate != processor.feature_extractor.sampling_rate:
+                raw_datasets = raw_datasets.cast_column(
+                    data_args.conditional_audio_column_name,
+                    datasets.features.Audio(
+                        sampling_rate=processor.feature_extractor.sampling_rate
+                    ),
+                )
 
     # derive max & min input length for sample rate & max duration
     max_target_length = (
