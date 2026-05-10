@@ -80,28 +80,35 @@ def main(args):
                 return_tensors="pt",
                 padding=True
             ).input_values.to(device).to(torch.float16) # Ensure fp16
-            
             # Encode
             labels = audio_decoder.encode(inputs)["audio_codes"]
-            
+
+            # [FIX] Encodec returns (num_frames, bsz, num_codebooks, seq_len)
+            # Usually num_frames is 1 for our duration. We need (bsz, num_codebooks, seq_len)
+            if labels.dim() == 4:
+                labels = labels.squeeze(0)
+
             # Clean up inputs early
             del inputs
-            
+
             # Apply delay pattern mask logic
             bsz = labels.shape[0]
-            pad_labels = torch.ones((bsz, 1, num_codebooks, 1), device=device, dtype=labels.dtype) * audio_encoder_pad_token_id
+            # pad_labels should be (bsz, num_codebooks, 1) to match (bsz, num_codebooks, seq_len)
+            pad_labels = torch.ones((bsz, num_codebooks, 1), device=device, dtype=labels.dtype) * audio_encoder_pad_token_id
             labels = torch.cat([pad_labels, labels], dim=-1)
-            
+
             all_labels = []
             for i in range(bsz):
+                # build_delay_pattern_mask expects (num_codebooks, seq_len)
                 l, delay_pattern_mask = model_decoder.build_delay_pattern_mask(
-                    labels[i].squeeze(0), 
+                    labels[i], 
                     audio_encoder_pad_token_id, 
                     labels.shape[-1] + num_codebooks
                 )
                 l = model_decoder.apply_delay_pattern_mask(l, delay_pattern_mask)
+                # The first timestamp is associated to a row full of BOS, let's get rid of it
                 all_labels.append(l[:, 1:].cpu().numpy())
-            
+
             # Clean up GPU
             del labels
             torch.cuda.empty_cache()
