@@ -19,6 +19,56 @@
 import logging
 import os
 import sys
+
+# --- 0. Setup Environment for Kaggle/T4 multi-GPU stability ---
+if "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
+    os.environ.setdefault("NCCL_P2P_DISABLE", "1")
+    os.environ.setdefault("NCCL_IB_DISABLE", "1")
+    os.environ.setdefault("WANDB_MODE", "offline")
+
+# --- 1. Patch the installed transformers library if needed ---
+def patch_transformers():
+    try:
+        import transformers.models.musicgen.modeling_musicgen as m
+        file_path = m.__file__
+        with open(file_path, "r") as f:
+            content = f.read()
+
+        changed = False
+        # Intercept labels in MusicgenForConditionalGeneration.forward to flatten them
+        old_labels_check = """        if (labels is not None) and (decoder_input_ids is None and decoder_inputs_embeds is None):
+            decoder_input_ids = shift_tokens_right("""
+                
+        new_labels_check = """        # [FIX] Flatten 3D labels to 2D before shift_tokens_right
+        if labels is not None and labels.dim() == 3:
+            bsz, num_codebooks, seq_len = labels.shape
+            labels = labels.reshape(bsz * num_codebooks, seq_len)
+
+        if (labels is not None) and (decoder_input_ids is None and decoder_inputs_embeds is None):
+            decoder_input_ids = shift_tokens_right("""
+
+        if "# [FIX] Flatten 3D labels" not in content:
+            content = content.replace(old_labels_check, new_labels_check)
+            changed = True
+        
+        # [FIX] Replace .view(-1) with .reshape(-1) for non-contiguous tensors
+        if "labels.view(-1)" in content:
+            content = content.replace("labels.view(-1)", "labels.reshape(-1)")
+            changed = True
+        if "logits.view(-1, self.config.vocab_size)" in content:
+            content = content.replace("logits.view(-1, self.config.vocab_size)", "logits.reshape(-1, self.config.vocab_size)")
+            changed = True
+
+        if changed:
+            with open(file_path, "w") as f:
+                f.write(content)
+            print(f"Successfully patched modeling_musicgen: {file_path}")
+    except Exception as e:
+        # We don't want to crash if we can't patch, but we should log it
+        print(f"Warning: Could not patch modeling_musicgen: {e}")
+
+patch_transformers()
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 

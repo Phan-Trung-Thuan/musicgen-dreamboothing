@@ -15,6 +15,7 @@ Specifically, this involves:
 * [Requirements](#requirements)
 * [Training](#training)
 * [Inference](#inference)
+* [Running on Kaggle](#running-on-kaggle)
 * [❓ FAQ](#faq)
 
 ## Requirements
@@ -246,6 +247,39 @@ There seems to be an error using guidance scale with some musicgen checkpoints. 
 
 I haven't tested yet the training script with stereo MusicGen models. I welcome all contributions from the community to test and correct the training script on those!
 
+
+## Running on Kaggle
+
+This repository has been optimized for Kaggle T4 GPUs. To run on Kaggle:
+
+1. **Setup Environment**: Clone the repository and install dependencies.
+   ```python
+   !git clone https://github.com/ylacombe/musicgen-dreamboothing.git
+   %cd musicgen-dreamboothing
+   !pip install -e .
+   ```
+
+2. **Prepare Dataset**: Use the provided script to prepare your local audio files and captions.
+   ```python
+   !python prepare_kaggle_dataset.py \
+       --source_dir "/kaggle/input/your-dataset" \
+       --caption_file "/kaggle/input/your-dataset/captions.json" \
+       --dest_dir "./musicfiles"
+   ```
+
+3. **Train**: Run the training script. Environment variables for multi-GPU stability are automatically set.
+   ```python
+   !accelerate launch --multi_gpu --mixed_precision=fp16 dreambooth_musicgen.py \
+       --model_name_or_path facebook/musicgen-small \
+       --dataset_name "./musicfiles" \
+       --target_audio_column_name audio \
+       --text_column_name text \
+       --output_dir "./output" \
+       --use_lora \
+       --do_train \
+       --fp16 \
+       --num_train_epochs 5
+   ```
 
 ## License
 
