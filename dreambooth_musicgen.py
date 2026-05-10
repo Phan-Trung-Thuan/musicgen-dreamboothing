@@ -533,6 +533,11 @@ def main():
     ):
         logger.info(f"Loading pre-processed dataset from {data_args.dataset_name}...")
         vectorized_datasets = datasets.load_from_disk(data_args.dataset_name)
+        
+        # [FIX] Remap 'test' to 'eval' for compatibility with Trainer
+        if "test" in vectorized_datasets and "eval" not in vectorized_datasets:
+            vectorized_datasets["eval"] = vectorized_datasets["test"]
+            
         # Bypassing all preprocessing steps below
         raw_datasets = None 
     else:
