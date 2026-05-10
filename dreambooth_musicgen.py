@@ -876,13 +876,19 @@ def main():
 
         # load audio
         target_sample = batch[target_audio_column_name]
+        
+        # [FIX] Truncate audio if it's longer than max_target_length
+        audio_array = target_sample["array"].squeeze()
+        if len(audio_array) > max_target_length:
+            audio_array = audio_array[:int(max_target_length)]
+            
         labels = audio_encoder_feature_extractor(
-            target_sample["array"], sampling_rate=target_sample["sampling_rate"]
+            audio_array, sampling_rate=target_sample["sampling_rate"]
         )
         batch["labels"] = labels["input_values"]
 
         # take length of raw audio waveform
-        batch["target_length"] = len(target_sample["array"].squeeze())
+        batch["target_length"] = len(audio_array)
         return batch
 
     with training_args.main_process_first(desc="dataset map preprocessing"):
@@ -894,7 +900,9 @@ def main():
         )
 
         def is_audio_in_length_range(length):
-            return length > min_target_length and length < max_target_length
+            # [FIX] We now only filter out audio that is TOO SHORT. 
+            # Audio that is too long is truncated in prepare_audio_features.
+            return length >= min_target_length
 
         # filter data that is shorter than min_target_length
         vectorized_datasets = vectorized_datasets.filter(
