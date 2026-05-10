@@ -146,7 +146,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_dir", type=str, required=True)
     parser.add_argument("--output_dir", type=str, required=True)
     parser.add_argument("--max_duration_in_seconds", type=float, default=30.0)
-    parser.add_argument("--batch_size", type=int, default=8) # Lower default batch size
+    parser.add_argument("--batch_size", type=int, default=16) # Increased batch size
     
     args = parser.parse_args()
     main(args)
