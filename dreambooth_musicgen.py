@@ -90,7 +90,7 @@ from transformers import (
     set_seed,
 )
 from transformers.trainer_utils import get_last_checkpoint, is_main_process
-from transformers.utils import check_min_version, send_example_telemetry
+from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 from transformers.integrations import is_wandb_available
 from multiprocess import set_start_method
@@ -419,6 +419,8 @@ class DataCollatorMusicGenWithPadding:
         labels = torch.nn.utils.rnn.pad_sequence(
             labels, batch_first=True, padding_value=-100
         )
+        # [FIX] Transpose to [bsz, num_codebooks, seq_len] for DataParallel
+        labels = labels.transpose(1, 2).contiguous()
 
         input_ids = [{"input_ids": feature["input_ids"]} for feature in features]
         input_ids = self.processor.tokenizer.pad(input_ids, return_tensors="pt")
@@ -438,7 +440,7 @@ class DataCollatorMusicGenWithPadding:
                 input_values, return_tensors="pt"
             )
 
-            batch[self.feature_extractor_input_name : input_values]
+            batch[self.feature_extractor_input_name] = input_values
 
         return batch
 
@@ -462,7 +464,7 @@ def main():
 
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
-    send_example_telemetry("run_musicgen_melody", model_args, data_args)
+    # send_example_telemetry("run_musicgen_melody", model_args, data_args)
 
     # Detecting last checkpoint.
     last_checkpoint = None
@@ -777,6 +779,9 @@ def main():
         revision=model_args.model_revision,
     )
 
+    model.config.vocab_size = model.decoder.config.vocab_size
+    model.config.pad_token_id = 2047
+    model.config.decoder_start_token_id = 2047
     # take audio_encoder_feature_extractor
     audio_encoder_feature_extractor = AutoFeatureExtractor.from_pretrained(
         model.config.audio_encoder._name_or_path,
