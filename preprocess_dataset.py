@@ -5,8 +5,14 @@ from transformers import AutoProcessor, AutoFeatureExtractor, MusicgenForConditi
 import argparse
 import librosa
 import numpy as np
+from multiprocess import set_start_method
 
 def main(args):
+    try:
+        set_start_method("spawn", force=True)
+    except RuntimeError:
+        pass
+
     print(f"Loading processor and model parts from {args.model_name_or_path}...")
     processor = AutoProcessor.from_pretrained(args.model_name_or_path)
     model = MusicgenForConditionalGeneration.from_pretrained(args.model_name_or_path)
@@ -62,7 +68,6 @@ def main(args):
     processed_datasets = raw_datasets.map(
         preprocess_function,
         remove_columns=raw_datasets["train"].column_names,
-        num_proc=1, # Single process to keep RAM low
         writer_batch_size=100, # Flush to disk often
         desc="Preprocess and Encode"
     )
