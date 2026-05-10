@@ -1,5 +1,6 @@
 import os
 import torch
+import datasets
 from datasets import load_dataset, DatasetDict
 from transformers import AutoProcessor, AutoFeatureExtractor, MusicgenForConditionalGeneration
 import argparse
@@ -7,6 +8,7 @@ import librosa
 import numpy as np
 from multiprocess import set_start_method
 from concurrent.futures import ThreadPoolExecutor
+import gc
 
 def main(args):
     try:
@@ -14,14 +16,24 @@ def main(args):
     except RuntimeError:
         pass
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")
+
     print(f"Loading processor and model parts from {args.model_name_or_path}...")
     processor = AutoProcessor.from_pretrained(args.model_name_or_path)
-    model = MusicgenForConditionalGeneration.from_pretrained(args.model_name_or_path)
+    
+    # [FIX] Load in float16 to save 50% VRAM
+    model = MusicgenForConditionalGeneration.from_pretrained(
+        args.model_name_or_path, 
+        torch_dtype=torch.float16
+    ).to(device)
+    
     audio_encoder_feature_extractor = AutoFeatureExtractor.from_pretrained(model.config.audio_encoder._name_or_path)
     
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    audio_decoder = model.audio_encoder.to(device)
-    model_decoder = model.decoder.to(device)
+    audio_decoder = model.audio_encoder
+    model_decoder = model.decoder
+    # We don't need the text encoder for this step, but it's part of the model. 
+    # It stays on GPU but won't be used.
 
     # 1. Load Dataset from JSONL
     print(f"Loading dataset from {args.dataset_dir}...")
@@ -40,10 +52,10 @@ def main(args):
 
     def load_single_audio(path):
         try:
+            # librosa.load is CPU heavy
             audio, _ = librosa.load(path, sr=sampling_rate, mono=True)
             if len(audio) > max_target_length:
                 audio = audio[:max_target_length]
-            # Pad to max_target_length to allow batching
             if len(audio) < max_target_length:
                 audio = np.pad(audio, (0, max_target_length - len(audio)))
             return audio
@@ -53,7 +65,6 @@ def main(args):
 
     # 2. Batched Preprocessing Function
     def preprocess_function(examples):
-        # Audio Paths
         audio_paths = examples["audio_path"]
         
         # Parallel Audio Loading (CPU Bound)
@@ -62,26 +73,23 @@ def main(args):
         
         # Batch Encode Audio to Tokens (GPU accelerated)
         with torch.no_grad():
-            # Convert list of arrays to single tensor [bsz, seq_len]
-            input_tensors = torch.from_numpy(np.stack(audio_arrays)).to(device)
-            
             # Feature extraction (normalize)
-            # feature_extractor expects list of arrays or numpy array
             inputs = audio_encoder_feature_extractor(
                 audio_arrays, 
                 sampling_rate=sampling_rate, 
                 return_tensors="pt",
                 padding=True
-            ).input_values.to(device)
+            ).input_values.to(device).to(torch.float16) # Ensure fp16
             
             # Encode
             labels = audio_decoder.encode(inputs)["audio_codes"]
             
-            # Apply delay pattern mask logic (Vectorized as much as possible)
+            # Clean up inputs early
+            del inputs
+            
+            # Apply delay pattern mask logic
             bsz = labels.shape[0]
             pad_labels = torch.ones((bsz, 1, num_codebooks, 1), device=device, dtype=labels.dtype) * audio_encoder_pad_token_id
-            
-            # labels is [bsz, 1, num_codebooks, seq_len]
             labels = torch.cat([pad_labels, labels], dim=-1)
             
             all_labels = []
@@ -93,8 +101,13 @@ def main(args):
                 )
                 l = model_decoder.apply_delay_pattern_mask(l, delay_pattern_mask)
                 all_labels.append(l[:, 1:].cpu().numpy())
+            
+            # Clean up GPU
+            del labels
+            torch.cuda.empty_cache()
+            gc.collect()
 
-        # Text (Tokenization is fast, but we do it batched anyway)
+        # Text
         texts = examples["text"]
         tokenized_text = processor.tokenizer(texts, padding=False)
         
@@ -110,7 +123,8 @@ def main(args):
         batched=True,
         batch_size=args.batch_size,
         remove_columns=raw_datasets["train"].column_names,
-        writer_batch_size=args.batch_size * 2,
+        keep_in_memory=False, # Force disk caching to save RAM
+        writer_batch_size=100, # Flush to disk often
         desc="Preprocess and Encode"
     )
 
@@ -125,7 +139,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_dir", type=str, required=True)
     parser.add_argument("--output_dir", type=str, required=True)
     parser.add_argument("--max_duration_in_seconds", type=float, default=30.0)
-    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--batch_size", type=int, default=8) # Lower default batch size
     
     args = parser.parse_args()
     main(args)
