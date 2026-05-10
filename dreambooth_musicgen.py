@@ -835,175 +835,176 @@ def main():
     # so that we just need to set the correct target sampling rate and normalize the input
     # via the `feature_extractor`
 
-    # resample target audio
-    features = next(iter(raw_datasets.values())).features
-    audio_feature = features[data_args.target_audio_column_name]
+    if raw_datasets is not None:
+        # resample target audio
+        features = next(iter(raw_datasets.values())).features
+        audio_feature = features[data_args.target_audio_column_name]
 
-    # [FIX] Only check sampling_rate if it's an Audio feature. 
-    # If it's a string path (Zero-Copy), we handle resampling during manual loading.
-    if hasattr(audio_feature, "sampling_rate"):
-        dataset_sampling_rate = audio_feature.sampling_rate
-        if dataset_sampling_rate != audio_encoder_feature_extractor.sampling_rate:
-            raw_datasets = raw_datasets.cast_column(
-                data_args.target_audio_column_name,
-                datasets.features.Audio(
-                    sampling_rate=audio_encoder_feature_extractor.sampling_rate
-                ),
-            )
-
-    if data_args.conditional_audio_column_name is not None:
-        cond_audio_feature = features[data_args.conditional_audio_column_name]
-        if hasattr(cond_audio_feature, "sampling_rate"):
-            dataset_sampling_rate = cond_audio_feature.sampling_rate
-            if dataset_sampling_rate != processor.feature_extractor.sampling_rate:
+        # [FIX] Only check sampling_rate if it's an Audio feature. 
+        # If it's a string path (Zero-Copy), we handle resampling during manual loading.
+        if hasattr(audio_feature, "sampling_rate"):
+            dataset_sampling_rate = audio_feature.sampling_rate
+            if dataset_sampling_rate != audio_encoder_feature_extractor.sampling_rate:
                 raw_datasets = raw_datasets.cast_column(
-                    data_args.conditional_audio_column_name,
+                    data_args.target_audio_column_name,
                     datasets.features.Audio(
-                        sampling_rate=processor.feature_extractor.sampling_rate
+                        sampling_rate=audio_encoder_feature_extractor.sampling_rate
                     ),
                 )
 
-    # derive max & min input length for sample rate & max duration
-    max_target_length = (
-        data_args.max_duration_in_seconds
-        * audio_encoder_feature_extractor.sampling_rate
-    )
-    min_target_length = (
-        data_args.min_duration_in_seconds
-        * audio_encoder_feature_extractor.sampling_rate
-    )
-    target_audio_column_name = data_args.target_audio_column_name
-    conditional_audio_column_name = data_args.conditional_audio_column_name
-    text_column_name = data_args.text_column_name
-    feature_extractor_input_name = processor.feature_extractor.model_input_names[0]
-    audio_encoder_pad_token_id = config.decoder.pad_token_id
-    num_codebooks = model.decoder.config.num_codebooks
+        if data_args.conditional_audio_column_name is not None:
+            cond_audio_feature = features[data_args.conditional_audio_column_name]
+            if hasattr(cond_audio_feature, "sampling_rate"):
+                dataset_sampling_rate = cond_audio_feature.sampling_rate
+                if dataset_sampling_rate != processor.feature_extractor.sampling_rate:
+                    raw_datasets = raw_datasets.cast_column(
+                        data_args.conditional_audio_column_name,
+                        datasets.features.Audio(
+                            sampling_rate=processor.feature_extractor.sampling_rate
+                        ),
+                    )
 
-    if data_args.instance_prompt is not None:
-        with training_args.main_process_first(desc="instance_prompt preprocessing"):
-            # compute text embeddings on one process since it's only a forward pass
-            # do it on CPU for simplicity
-            instance_prompt_tokenized = instance_prompt_tokenized["input_ids"]
+        # derive max & min input length for sample rate & max duration
+        max_target_length = (
+            data_args.max_duration_in_seconds
+            * audio_encoder_feature_extractor.sampling_rate
+        )
+        min_target_length = (
+            data_args.min_duration_in_seconds
+            * audio_encoder_feature_extractor.sampling_rate
+        )
+        target_audio_column_name = data_args.target_audio_column_name
+        conditional_audio_column_name = data_args.conditional_audio_column_name
+        text_column_name = data_args.text_column_name
+        feature_extractor_input_name = processor.feature_extractor.model_input_names[0]
+        audio_encoder_pad_token_id = config.decoder.pad_token_id
+        num_codebooks = model.decoder.config.num_codebooks
 
-    # Preprocessing the datasets.
-    # We need to read the audio files as arrays and tokenize the targets.
-    def prepare_audio_features(batch):
-        # load audio
-        if conditional_audio_column_name is not None:
-            sample = batch[conditional_audio_column_name]
-            inputs = processor.feature_extractor(
-                sample["array"], sampling_rate=sample["sampling_rate"]
-            )
-            batch[feature_extractor_input_name] = getattr(
-                inputs, feature_extractor_input_name
-            )[0]
+        if data_args.instance_prompt is not None:
+            with training_args.main_process_first(desc="instance_prompt preprocessing"):
+                # compute text embeddings on one process since it's only a forward pass
+                # do it on CPU for simplicity
+                instance_prompt_tokenized = instance_prompt_tokenized["input_ids"]
 
-        if text_column_name is not None:
-            text = batch[text_column_name]
-            batch["input_ids"] = processor.tokenizer(text)["input_ids"]
-        elif add_metadata is not None and "metadata" in batch:
-            metadata = batch["metadata"]
-            if instance_prompt is not None and instance_prompt != "":
-                metadata = f"{instance_prompt}, {metadata}"
-            batch["input_ids"] = processor.tokenizer(metadata)["input_ids"]
-        else:
-            batch["input_ids"] = instance_prompt_tokenized
+        # Preprocessing the datasets.
+        # We need to read the audio files as arrays and tokenize the targets.
+        def prepare_audio_features(batch):
+            # load audio
+            if conditional_audio_column_name is not None:
+                sample = batch[conditional_audio_column_name]
+                inputs = processor.feature_extractor(
+                    sample["array"], sampling_rate=sample["sampling_rate"]
+                )
+                batch[feature_extractor_input_name] = getattr(
+                    inputs, feature_extractor_input_name
+                )[0]
 
-        # load audio
-        target_sample = batch[target_audio_column_name]
-        
-        # [FIX] Manual load if it's a path (string) to avoid HF cache explosion
-        if isinstance(target_sample, str):
-            import librosa
-            audio_array, _ = librosa.load(
-                target_sample, 
-                sr=audio_encoder_feature_extractor.sampling_rate,
-                mono=True
-            )
-            sampling_rate = audio_encoder_feature_extractor.sampling_rate
-        else:
-            audio_array = target_sample["array"].squeeze()
-            sampling_rate = target_sample["sampling_rate"]
+            if text_column_name is not None:
+                text = batch[text_column_name]
+                batch["input_ids"] = processor.tokenizer(text)["input_ids"]
+            elif add_metadata is not None and "metadata" in batch:
+                metadata = batch["metadata"]
+                if instance_prompt is not None and instance_prompt != "":
+                    metadata = f"{instance_prompt}, {metadata}"
+                batch["input_ids"] = processor.tokenizer(metadata)["input_ids"]
+            else:
+                batch["input_ids"] = instance_prompt_tokenized
 
-        # [FIX] Truncate audio if it's longer than max_target_length
-        if len(audio_array) > max_target_length:
-            audio_array = audio_array[:int(max_target_length)]
+            # load audio
+            target_sample = batch[target_audio_column_name]
             
-        labels = audio_encoder_feature_extractor(
-            audio_array, sampling_rate=sampling_rate
-        )
-        batch["labels"] = labels["input_values"]
+            # [FIX] Manual load if it's a path (string) to avoid HF cache explosion
+            if isinstance(target_sample, str):
+                import librosa
+                audio_array, _ = librosa.load(
+                    target_sample, 
+                    sr=audio_encoder_feature_extractor.sampling_rate,
+                    mono=True
+                )
+                sampling_rate = audio_encoder_feature_extractor.sampling_rate
+            else:
+                audio_array = target_sample["array"].squeeze()
+                sampling_rate = target_sample["sampling_rate"]
 
-        # take length of raw audio waveform
-        batch["target_length"] = len(audio_array)
-        return batch
+            # [FIX] Truncate audio if it's longer than max_target_length
+            if len(audio_array) > max_target_length:
+                audio_array = audio_array[:int(max_target_length)]
+                
+            labels = audio_encoder_feature_extractor(
+                audio_array, sampling_rate=sampling_rate
+            )
+            batch["labels"] = labels["input_values"]
 
-    with training_args.main_process_first(desc="dataset map preprocessing"):
-        vectorized_datasets = raw_datasets.map(
-            prepare_audio_features,
-            remove_columns=next(iter(raw_datasets.values())).column_names,
-            num_proc=num_workers,
-            desc="preprocess datasets",
-        )
+            # take length of raw audio waveform
+            batch["target_length"] = len(audio_array)
+            return batch
 
-        def is_audio_in_length_range(length):
-            # [FIX] We now only filter out audio that is TOO SHORT. 
-            # Audio that is too long is truncated in prepare_audio_features.
-            return length >= min_target_length
+        with training_args.main_process_first(desc="dataset map preprocessing"):
+            vectorized_datasets = raw_datasets.map(
+                prepare_audio_features,
+                remove_columns=next(iter(raw_datasets.values())).column_names,
+                num_proc=num_workers,
+                desc="preprocess datasets",
+            )
 
-        # filter data that is shorter than min_target_length
-        vectorized_datasets = vectorized_datasets.filter(
-            is_audio_in_length_range,
-            num_proc=num_workers,
-            input_columns=["target_length"],
-        )
+            def is_audio_in_length_range(length):
+                # [FIX] We now only filter out audio that is TOO SHORT. 
+                # Audio that is too long is truncated in prepare_audio_features.
+                return length >= min_target_length
 
-    audio_decoder = model.audio_encoder
+            # filter data that is shorter than min_target_length
+            vectorized_datasets = vectorized_datasets.filter(
+                is_audio_in_length_range,
+                num_proc=num_workers,
+                input_columns=["target_length"],
+            )
 
-    pad_labels = torch.ones((1, 1, num_codebooks, 1)) * audio_encoder_pad_token_id
+        audio_decoder = model.audio_encoder
 
-    if torch.cuda.device_count() == 1:
-        audio_decoder.to("cuda")
+        pad_labels = torch.ones((1, 1, num_codebooks, 1)) * audio_encoder_pad_token_id
 
-    def apply_audio_decoder(batch, rank=None):
-        if rank is not None:
-            # move the model to the right GPU if not there already
-            device = f"cuda:{(rank or 0)% torch.cuda.device_count()}"
-            audio_decoder.to(device)
+        if torch.cuda.device_count() == 1:
+            audio_decoder.to("cuda")
 
-        with torch.no_grad():
-            labels = audio_decoder.encode(
-                torch.tensor(batch["labels"]).to(audio_decoder.device)
-            )["audio_codes"]
+        def apply_audio_decoder(batch, rank=None):
+            if rank is not None:
+                # move the model to the right GPU if not there already
+                device = f"cuda:{(rank or 0)% torch.cuda.device_count()}"
+                audio_decoder.to(device)
 
-        # add pad token column
-        labels = torch.cat(
-            [pad_labels.to(labels.device).to(labels.dtype), labels], dim=-1
-        )
+            with torch.no_grad():
+                labels = audio_decoder.encode(
+                    torch.tensor(batch["labels"]).to(audio_decoder.device)
+                )["audio_codes"]
 
-        labels, delay_pattern_mask = model.decoder.build_delay_pattern_mask(
-            labels.squeeze(0),
-            audio_encoder_pad_token_id,
-            labels.shape[-1] + num_codebooks,
-        )
+            # add pad token column
+            labels = torch.cat(
+                [pad_labels.to(labels.device).to(labels.dtype), labels], dim=-1
+            )
 
-        labels = model.decoder.apply_delay_pattern_mask(labels, delay_pattern_mask)
+            labels, delay_pattern_mask = model.decoder.build_delay_pattern_mask(
+                labels.squeeze(0),
+                audio_encoder_pad_token_id,
+                labels.shape[-1] + num_codebooks,
+            )
 
-        # the first timestamp is associated to a row full of BOS, let's get rid of it
-        batch["labels"] = labels[:, 1:].cpu()
-        return batch
+            labels = model.decoder.apply_delay_pattern_mask(labels, delay_pattern_mask)
 
-    with training_args.main_process_first(desc="audio target preprocessing"):
-        # Encodec doesn't truely support batching
-        # Pass samples one by one to the GPU
-        vectorized_datasets = vectorized_datasets.map(
-            apply_audio_decoder,
-            with_rank=True,
-            num_proc=torch.cuda.device_count()
-            if torch.cuda.device_count() > 0
-            else num_workers,
-            desc="Apply encodec",
-        )
+            # the first timestamp is associated to a row full of BOS, let's get rid of it
+            batch["labels"] = labels[:, 1:].cpu()
+            return batch
+
+        with training_args.main_process_first(desc="audio target preprocessing"):
+            # Encodec doesn't truely support batching
+            # Pass samples one by one to the GPU
+            vectorized_datasets = vectorized_datasets.map(
+                apply_audio_decoder,
+                with_rank=True,
+                num_proc=torch.cuda.device_count()
+                if torch.cuda.device_count() > 0
+                else num_workers,
+                desc="Apply encodec",
+            )
 
     if data_args.add_audio_samples_to_wandb and "wandb" in training_args.report_to:
         if is_wandb_available():
