@@ -73,7 +73,7 @@ patch_transformers()
 try:
     from transformers import MusicgenConfig
     if not hasattr(MusicgenConfig, "vocab_size"):
-        MusicgenConfig.vocab_size = property(lambda self: self.decoder.vocab_size)
+        MusicgenConfig.vocab_size = 2048
 except ImportError:
     pass
 
