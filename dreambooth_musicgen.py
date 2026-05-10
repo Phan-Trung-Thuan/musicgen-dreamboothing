@@ -69,6 +69,14 @@ def patch_transformers():
 
 patch_transformers()
 
+# --- 2. Patch MusicgenConfig to have vocab_size for PEFT compatibility ---
+try:
+    from transformers import MusicgenConfig
+    if not hasattr(MusicgenConfig, "vocab_size"):
+        MusicgenConfig.vocab_size = property(lambda self: self.decoder.vocab_size)
+except ImportError:
+    pass
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
