@@ -500,10 +500,10 @@ def main():
 
     # [FIX] Kaggle specific optimizations for stability and cleaner logs
     if "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
-        training_args.disable_tqdm = True
+        training_args.disable_tqdm = False
         if training_args.eval_accumulation_steps is None or training_args.eval_accumulation_steps <= 0:
             training_args.eval_accumulation_steps = 1
-        logger.info("Kaggle environment detected: tqdm disabled, eval_accumulation_steps set to 1.")
+        logger.info("Kaggle environment detected: eval_accumulation_steps set to 1.")
 
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
