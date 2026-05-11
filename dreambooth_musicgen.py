@@ -1117,12 +1117,19 @@ def main():
         model.print_trainable_parameters()
         logger.info(f"Modules with Lora: {model.targeted_module_names}")
 
+    # [FIX] Automatic capping for Kaggle to avoid OOM
+    if "KAGGLE_KERNEL_RUN_TYPE" in os.environ and training_args.do_eval:
+        if "eval" in vectorized_datasets:
+            if data_args.max_eval_samples is None or data_args.max_eval_samples > 100:
+                logger.warning("Kaggle environment detected. Capping evaluation samples to 50 for stability.")
+                vectorized_datasets["eval"] = vectorized_datasets["eval"].select(range(min(len(vectorized_datasets["eval"]), 50)))
+
     # Initialize MusicgenTrainer
     trainer = MusicgenTrainer(
         model=model,
         data_collator=data_collator,
         args=training_args,
-        compute_metrics=compute_metrics,
+        compute_metrics=compute_metrics if not getattr(training_args, "prediction_loss_only", False) else None,
         train_dataset=vectorized_datasets["train"] if training_args.do_train else None,
         eval_dataset=vectorized_datasets["eval"] if training_args.do_eval else None,
         tokenizer=processor,
