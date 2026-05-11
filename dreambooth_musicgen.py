@@ -1068,7 +1068,8 @@ def main():
     # instantiate a data collator and the trainer
 
     # [FIX] Removed CLAP similarity computation to save RAM and prevent KeyError: 'eval_loss'
-    # For fine-tuning, eval_loss is sufficient and much more stable.
+    # By forcing prediction_loss_only to True, we ensure the Trainer always computes and logs eval_loss.
+    training_args.prediction_loss_only = True
     compute_metrics = None
 
     # Now save everything to be able to create a single processor later
