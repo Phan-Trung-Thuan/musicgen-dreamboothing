@@ -470,6 +470,13 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
+    # [FIX] Kaggle specific optimizations for stability and cleaner logs
+    if "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
+        training_args.disable_tqdm = True
+        if training_args.eval_accumulation_steps is None or training_args.eval_accumulation_steps <= 0:
+            training_args.eval_accumulation_steps = 1
+        logger.info("Kaggle environment detected: tqdm disabled, eval_accumulation_steps set to 1.")
+
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
     # send_example_telemetry("run_musicgen_melody", model_args, data_args)
@@ -538,6 +545,14 @@ def main():
         if "test" in vectorized_datasets and "eval" not in vectorized_datasets:
             vectorized_datasets["eval"] = vectorized_datasets["test"]
             
+        # [FIX] Aggressive capping immediately after load for Kaggle
+        if "KAGGLE_KERNEL_RUN_TYPE" in os.environ and training_args.do_eval:
+            for split_name in ["test", "eval"]:
+                if split_name in vectorized_datasets:
+                    if len(vectorized_datasets[split_name]) > 50:
+                        logger.warning(f"Kaggle: Capping {split_name} split to 50 samples.")
+                        vectorized_datasets[split_name] = vectorized_datasets[split_name].select(range(50))
+
         # Bypassing all preprocessing steps below
         raw_datasets = None 
     else:
