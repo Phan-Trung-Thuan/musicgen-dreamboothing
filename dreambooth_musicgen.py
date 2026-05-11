@@ -122,7 +122,7 @@ def list_field(default=None, metadata=None):
 class MusicgenTrainer(Seq2SeqTrainer):
     def evaluate(
         self,
-        eval_dataset: Optional[Dataset] = None,
+        eval_dataset: Optional[datasets.Dataset] = None,
         ignore_keys: Optional[List[str]] = None,
         metric_key_prefix: str = "eval",
     ) -> Dict[str, float]:
