@@ -1037,40 +1037,11 @@ def main():
             )
 
     # 6. Next, we can prepare the training.
-    # Let's use word CLAP similary as our evaluation metric,
     # instantiate a data collator and the trainer
 
-    # Define evaluation metrics during training, *i.e.* CLAP similarity
-    clap = AutoModel.from_pretrained(model_args.clap_model_name_or_path)
-    clap_processor = AutoProcessor.from_pretrained(model_args.clap_model_name_or_path)
-
-    def clap_similarity(texts, audios):
-        clap_inputs = clap_processor(
-            text=texts, audios=audios.squeeze(1), padding=True, return_tensors="pt"
-        )
-        text_features = clap.get_text_features(
-            clap_inputs["input_ids"],
-            attention_mask=clap_inputs.get("attention_mask", None),
-        )
-        audio_features = clap.get_audio_features(clap_inputs["input_features"])
-
-        cosine_sim = torch.nn.functional.cosine_similarity(
-            audio_features, text_features, dim=1, eps=1e-8
-        )
-
-        return cosine_sim.mean()
-
-    eval_metrics = {"clap": clap_similarity}
-
-    def compute_metrics(pred):
-        input_ids = pred.inputs
-        input_ids[input_ids == -100] = processor.tokenizer.pad_token_id
-        texts = processor.tokenizer.batch_decode(input_ids, skip_special_tokens=True)
-        audios = pred.predictions
-
-        results = {key: metric(texts, audios) for (key, metric) in eval_metrics.items()}
-
-        return results
+    # [FIX] Removed CLAP similarity computation to save RAM and prevent KeyError: 'eval_loss'
+    # For fine-tuning, eval_loss is sufficient and much more stable.
+    compute_metrics = None
 
     # Now save everything to be able to create a single processor later
     # make sure all processes wait until data is saved
