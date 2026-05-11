@@ -1070,6 +1070,9 @@ def main():
     # [FIX] Removed CLAP similarity computation to save RAM and prevent KeyError: 'eval_loss'
     # By forcing prediction_loss_only to True, we ensure the Trainer always computes and logs eval_loss.
     training_args.prediction_loss_only = True
+    # [FIX] Explicitly set label_names because PeftModel obscures the underlying forward signature, 
+    # causing Trainer to silently drop evaluation loss computation.
+    training_args.label_names = ["labels"]
     compute_metrics = None
 
     # Now save everything to be able to create a single processor later
