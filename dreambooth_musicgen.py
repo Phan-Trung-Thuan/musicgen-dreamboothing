@@ -543,9 +543,9 @@ def main():
         f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}, "
         f"distributed training: {training_args.parallel_mode.value == 'distributed'}, 16-bits training: {training_args.fp16}"
     )
-    # Set the verbosity to warning of the Transformers logger to avoid massive config dumps:
+    # Set the verbosity to info of the Transformers logger (on main process only):
     if is_main_process(training_args.local_rank):
-        transformers.utils.logging.set_verbosity_warning()
+        transformers.utils.logging.set_verbosity_info()
     logger.info("Training/evaluation parameters %s", training_args)
 
     # Set seed before initializing model.
@@ -806,6 +806,10 @@ def main():
         if data_args.push_metadata_repo_id:
             raw_datasets.push_to_hub(data_args.push_metadata_repo_id)
 
+    # Temporarily suppress massive config dumps
+    if is_main_process(training_args.local_rank):
+        transformers.utils.logging.set_verbosity_warning()
+
     # 3. Next, let's load the config as we might need it to create
     # load config
     config = AutoConfig.from_pretrained(
@@ -877,6 +881,10 @@ def main():
     audio_encoder_feature_extractor = AutoFeatureExtractor.from_pretrained(
         model.config.audio_encoder._name_or_path,
     )
+
+    # Restore standard logging
+    if is_main_process(training_args.local_rank):
+        transformers.utils.logging.set_verbosity_info()
 
     # Training constants needed for DataCollator and processing
     feature_extractor_input_name = processor.feature_extractor.model_input_names[0]
