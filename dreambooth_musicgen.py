@@ -120,6 +120,34 @@ def list_field(default=None, metadata=None):
 
 
 class MusicgenTrainer(Seq2SeqTrainer):
+    def evaluate(
+        self,
+        eval_dataset: Optional[Dataset] = None,
+        ignore_keys: Optional[List[str]] = None,
+        metric_key_prefix: str = "eval",
+    ) -> Dict[str, float]:
+        """
+        Overriding evaluate to ensure eval_loss is always present in metrics,
+        especially when compute_metrics is None.
+        """
+        # If compute_metrics is None, we should force prediction_loss_only to True
+        # to ensure the loss is computed and returned as 'eval_loss'.
+        original_prediction_loss_only = self.args.prediction_loss_only
+        if self.compute_metrics is None:
+            self.args.prediction_loss_only = True
+        
+        try:
+            metrics = super().evaluate(
+                eval_dataset=eval_dataset,
+                ignore_keys=ignore_keys,
+                metric_key_prefix=metric_key_prefix,
+            )
+        finally:
+            # Restore original state
+            self.args.prediction_loss_only = original_prediction_loss_only
+            
+        return metrics
+
     def _pad_tensors_to_max_len(self, tensor, max_length):
         if self.tokenizer is not None and hasattr(self.tokenizer, "pad_token_id"):
             # If PAD token is not defined at least EOS token has to be defined
@@ -1103,6 +1131,19 @@ def main():
         model.print_trainable_parameters()
         logger.info(f"Modules with Lora: {model.targeted_module_names}")
 
+    # [FIX] Ensure evaluation dataset is present if do_eval is True
+    if training_args.do_eval and ("eval" not in vectorized_datasets or len(vectorized_datasets["eval"]) == 0):
+        logger.warning("Evaluation split 'eval' not found or empty. Creating a small eval split from 'train'.")
+        if "train" in vectorized_datasets and len(vectorized_datasets["train"]) > 1:
+            # Split train into train and eval (90/10)
+            split_dataset = vectorized_datasets["train"].train_test_split(test_size=0.1, seed=training_args.seed)
+            vectorized_datasets["train"] = split_dataset["train"]
+            vectorized_datasets["eval"] = split_dataset["test"]
+            logger.info(f"Created eval split with {len(vectorized_datasets['eval'])} samples.")
+        else:
+            logger.error("No 'train' split found or too small to create 'eval' split from. Disabling evaluation.")
+            training_args.do_eval = False
+
     # [FIX] Automatic capping for Kaggle to avoid OOM
     if "KAGGLE_KERNEL_RUN_TYPE" in os.environ and training_args.do_eval:
         if "eval" in vectorized_datasets:
@@ -1117,7 +1158,7 @@ def main():
         args=training_args,
         compute_metrics=compute_metrics if not getattr(training_args, "prediction_loss_only", False) else None,
         train_dataset=vectorized_datasets["train"] if training_args.do_train else None,
-        eval_dataset=vectorized_datasets["eval"] if training_args.do_eval else None,
+        eval_dataset=vectorized_datasets.get("eval") if training_args.do_eval else None,
         tokenizer=processor,
     )
 
@@ -1237,17 +1278,22 @@ def main():
                 )
 
         # Instantiate the WandbPredictionProgressCallback
-        progress_callback = WandbPredictionProgressCallback(
-            trainer=trainer,
-            processor=processor,
-            val_dataset=vectorized_datasets["eval"],
-            additional_generation=full_generation_sample_text,
-            num_samples=data_args.num_samples_to_generate,
-            max_new_tokens=training_args.generation_max_length,
-        )
+        eval_dataset = vectorized_datasets.get("eval")
+        if eval_dataset is not None and len(eval_dataset) > 0:
+            num_samples = min(len(eval_dataset), data_args.num_samples_to_generate)
+            progress_callback = WandbPredictionProgressCallback(
+                trainer=trainer,
+                processor=processor,
+                val_dataset=eval_dataset,
+                additional_generation=full_generation_sample_text,
+                num_samples=num_samples,
+                max_new_tokens=training_args.generation_max_length,
+            )
 
-        # Add the callback to the trainer
-        trainer.add_callback(progress_callback)
+            # Add the callback to the trainer
+            trainer.add_callback(progress_callback)
+        else:
+            logger.warning("Evaluation dataset is missing or empty. Skipping WandbPredictionProgressCallback.")
 
     # 8. Finally, we can start training
 
