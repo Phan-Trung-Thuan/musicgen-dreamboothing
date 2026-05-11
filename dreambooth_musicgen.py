@@ -806,12 +806,8 @@ def main():
         if data_args.push_metadata_repo_id:
             raw_datasets.push_to_hub(data_args.push_metadata_repo_id)
 
-    # Temporarily suppress massive config dumps
-    if is_main_process(training_args.local_rank):
-        transformers.utils.logging.set_verbosity_warning()
-
     # 3. Next, let's load the config as we might need it to create
-    # load config
+    # We leave logging at INFO here so it prints the MusicgenConfig exactly once.
     config = AutoConfig.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
@@ -845,6 +841,10 @@ def main():
     # 4. Now we can instantiate the processor and model
     # Note for distributed training, the .from_pretrained methods guarantee that only
     # one local process can concurrently download model & vocab.
+
+    # Temporarily suppress massive config dumps for processor, model, and feature extractor
+    if is_main_process(training_args.local_rank):
+        transformers.utils.logging.set_verbosity_warning()
 
     # load processor
     processor = AutoProcessor.from_pretrained(
