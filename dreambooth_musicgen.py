@@ -27,6 +27,15 @@ if "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
     os.environ.setdefault("WANDB_MODE", "offline")
 
 # --- 1. Patch the installed transformers library if needed ---
+import torch
+# [FIX] Global monkeypatch for torch.load to fix PyTorch 2.6+ UnpicklingError
+_original_torch_load = torch.load
+def _patched_torch_load(*args, **kwargs):
+    if "weights_only" not in kwargs:
+        kwargs["weights_only"] = False
+    return _original_torch_load(*args, **kwargs)
+torch.load = _patched_torch_load
+
 def patch_transformers():
     try:
         import transformers.models.musicgen.modeling_musicgen as m
@@ -68,6 +77,27 @@ def patch_transformers():
         print(f"Warning: Could not patch modeling_musicgen: {e}")
 
 patch_transformers()
+
+# --- 1.5. Patch PyTorch for safe loading of RNG states in checkpoints ---
+try:
+    import torch
+    import numpy as np
+    if hasattr(torch.serialization, "add_safe_globals"):
+        # Add common numpy globals that are often used in RNG states or other metadata
+        safe_globals = [
+            np.core.multiarray._reconstruct,
+            np.ndarray,
+            np.dtype,
+            np.core.multiarray.scalar,
+        ]
+        # For numpy 2.0+ support, some paths might have changed
+        if hasattr(np, "_core") and hasattr(np._core.multiarray, "_reconstruct"):
+             safe_globals.append(np._core.multiarray._reconstruct)
+        
+        torch.serialization.add_safe_globals(safe_globals)
+        print(f"Successfully added safe globals to torch.serialization for PyTorch 2.6+ compatibility.")
+except Exception as e:
+    print(f"Warning: Could not add safe globals to torch.serialization: {e}")
 
 # --- 2. Patch MusicgenConfig to have vocab_size for PEFT compatibility ---
 try:

@@ -1,0 +1,1172 @@
+Running command: accelerate launch --multi_gpu --mixed_precision=fp16 dreambooth_musicgen.py     --model_name_or_path facebook/musicgen-small     --dataset_name /kaggle/working/musicgen-dreamboothing/processed_dataset     --target_audio_column_name audio_path     --text_column_name text     --output_dir ./musicgen-vietnamese-lora     --use_lora     --do_train     --do_eval     --fp16     --num_train_epochs 5     --max_duration_in_seconds 30     --preprocessing_num_workers 4     --dataloader_num_workers 4     --learning_rate 2e-4     --per_device_train_batch_size 1     --per_device_eval_batch_size 1     --gradient_accumulation_steps 8     --gradient_checkpointing True     --gradient_checkpointing_kwargs '{"use_reentrant": false}'     --ddp_find_unused_parameters False     --evaluation_strategy steps     --eval_steps 100     --eval_accumulation_steps 1     --save_steps 100     --save_total_limit 2     --load_best_model_at_end True     --metric_for_best_model eval_loss     --greater_is_better False     --logging_steps 10     --train_split_name train     --eval_split_name test     --decoder_start_token_id 2047     --pad_token_id 2047
+The following values were not passed to `accelerate launch` and had defaults used instead:
+	`--num_processes` was set to a value of `2`
+	`--num_machines` was set to a value of `1`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+Successfully patched modeling_musicgen: /usr/local/lib/python3.12/dist-packages/transformers/models/musicgen/modeling_musicgen.py
+2026-05-11 08:11:49.530778: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-05-11 08:11:49.530780: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1778487109.556601    2103 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1778487109.556837    2102 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1778487109.566060    2103 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+E0000 00:00:1778487109.566081    2102 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1778487109.587589    2102 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778487109.587594    2103 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778487109.587635    2102 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778487109.587637    2103 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778487109.587645    2103 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778487109.587644    2102 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778487109.587679    2103 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1778487109.587682    2102 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+05/11/2026 08:11:55 - WARNING - __main__ - Process rank: 0, device: cuda:0, n_gpu: 1, distributed training: True, 16-bits training: True
+05/11/2026 08:11:55 - INFO - __main__ - Training/evaluation parameters Seq2SeqTrainingArguments(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'gradient_accumulation_kwargs': None},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+bf16=False,
+bf16_full_eval=False,
+data_seed=None,
+dataloader_drop_last=False,
+dataloader_num_workers=4,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=False,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=True,
+dispatch_batches=None,
+do_eval=True,
+do_predict=False,
+do_train=True,
+eval_accumulation_steps=1,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_steps=100,
+evaluation_strategy=IntervalStrategy.STEPS,
+fp16=True,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+generation_config=None,
+generation_max_length=None,
+generation_num_beams=None,
+gradient_accumulation_steps=8,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=False,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=None,
+hub_private_repo=False,
+hub_strategy=HubStrategy.EVERY_SAVE,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=0.0002,
+length_column_name=length,
+load_best_model_at_end=True,
+local_rank=0,
+log_level=passive,
+log_level_replica=warning,
+log_on_each_node=True,
+logging_dir=./musicgen-vietnamese-lora/runs/May11_08-11-55_34b1b36ffdef,
+logging_first_step=False,
+logging_nan_inf_filter=True,
+logging_steps=10,
+logging_strategy=IntervalStrategy.STEPS,
+lr_scheduler_kwargs={},
+lr_scheduler_type=SchedulerType.LINEAR,
+max_grad_norm=1.0,
+max_steps=-1,
+metric_for_best_model=eval_loss,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_train_epochs=5.0,
+optim=OptimizerNames.ADAMW_TORCH,
+optim_args=None,
+optim_target_modules=None,
+output_dir=./musicgen-vietnamese-lora,
+overwrite_output_dir=False,
+past_index=-1,
+per_device_eval_batch_size=1,
+per_device_train_batch_size=1,
+predict_with_generate=False,
+prediction_loss_only=False,
+push_to_hub=False,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=['tensorboard', 'wandb'],
+resume_from_checkpoint=None,
+run_name=./musicgen-vietnamese-lora,
+save_on_each_node=False,
+save_only_model=False,
+save_safetensors=True,
+save_steps=100,
+save_strategy=IntervalStrategy.STEPS,
+save_total_limit=2,
+seed=42,
+skip_memory_metrics=True,
+sortish_sampler=False,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_mps_device=False,
+warmup_ratio=0.0,
+warmup_steps=0,
+weight_decay=0.0,
+)
+05/11/2026 08:11:55 - INFO - __main__ - Loading pre-processed dataset from /kaggle/working/musicgen-dreamboothing/processed_dataset...
+05/11/2026 08:11:55 - WARNING - __main__ - Process rank: 1, device: cuda:1, n_gpu: 1, distributed training: True, 16-bits training: True
+05/11/2026 08:11:55 - WARNING - __main__ - Kaggle: Capping test split to 50 samples.
+05/11/2026 08:11:55 - WARNING - __main__ - Kaggle: Capping eval split to 50 samples.
+05/11/2026 08:11:55 - WARNING - __main__ - Kaggle: Capping test split to 50 samples.
+/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py:943: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+05/11/2026 08:11:55 - WARNING - __main__ - Kaggle: Capping eval split to 50 samples.
+/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py:943: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+loading configuration file config.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/config.json
+Model config MusicgenConfig {
+  "_name_or_path": "facebook/musicgen-small",
+  "architectures": [
+    "MusicgenForConditionalGeneration"
+  ],
+  "audio_encoder": {
+    "_name_or_path": "facebook/encodec_32khz",
+    "add_cross_attention": false,
+    "architectures": [
+      "EncodecModel"
+    ],
+    "audio_channels": 1,
+    "bad_words_ids": null,
+    "begin_suppress_tokens": null,
+    "bos_token_id": null,
+    "chunk_length_s": null,
+    "chunk_size_feed_forward": 0,
+    "codebook_dim": 128,
+    "codebook_size": 2048,
+    "compress": 2,
+    "cross_attention_hidden_size": null,
+    "decoder_start_token_id": null,
+    "dilation_growth_rate": 2,
+    "diversity_penalty": 0.0,
+    "do_sample": false,
+    "early_stopping": false,
+    "encoder_no_repeat_ngram_size": 0,
+    "eos_token_id": null,
+    "exponential_decay_length_penalty": null,
+    "finetuning_task": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "hidden_size": 128,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "is_decoder": false,
+    "is_encoder_decoder": false,
+    "kernel_size": 7,
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "last_kernel_size": 7,
+    "length_penalty": 1.0,
+    "max_length": 20,
+    "min_length": 0,
+    "model_type": "encodec",
+    "no_repeat_ngram_size": 0,
+    "norm_type": "weight_norm",
+    "normalize": false,
+    "num_beam_groups": 1,
+    "num_beams": 1,
+    "num_filters": 64,
+    "num_lstm_layers": 2,
+    "num_residual_layers": 1,
+    "num_return_sequences": 1,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_scores": false,
+    "overlap": null,
+    "pad_mode": "reflect",
+    "pad_token_id": null,
+    "prefix": null,
+    "problem_type": null,
+    "pruned_heads": {},
+    "remove_invalid_values": false,
+    "repetition_penalty": 1.0,
+    "residual_kernel_size": 3,
+    "return_dict": true,
+    "return_dict_in_generate": false,
+    "sampling_rate": 32000,
+    "sep_token_id": null,
+    "suppress_tokens": null,
+    "target_bandwidths": [
+      2.2
+    ],
+    "task_specific_params": null,
+    "temperature": 1.0,
+    "tf_legacy_loss": false,
+    "tie_encoder_decoder": false,
+    "tie_word_embeddings": true,
+    "tokenizer_class": null,
+    "top_k": 50,
+    "top_p": 1.0,
+    "torch_dtype": "float32",
+    "torchscript": false,
+    "trim_right_ratio": 1.0,
+    "typical_p": 1.0,
+    "upsampling_ratios": [
+      8,
+      5,
+      4,
+      4
+    ],
+    "use_bfloat16": false,
+    "use_causal_conv": false,
+    "use_conv_shortcut": false
+  },
+  "decoder": {
+    "_name_or_path": "",
+    "activation_dropout": 0.0,
+    "activation_function": "gelu",
+    "add_cross_attention": false,
+    "architectures": null,
+    "attention_dropout": 0.0,
+    "audio_channels": 1,
+    "bad_words_ids": null,
+    "begin_suppress_tokens": null,
+    "bos_token_id": 2048,
+    "chunk_size_feed_forward": 0,
+    "classifier_dropout": 0.0,
+    "cross_attention_hidden_size": null,
+    "decoder_start_token_id": null,
+    "diversity_penalty": 0.0,
+    "do_sample": false,
+    "dropout": 0.1,
+    "early_stopping": false,
+    "encoder_no_repeat_ngram_size": 0,
+    "eos_token_id": null,
+    "exponential_decay_length_penalty": null,
+    "ffn_dim": 4096,
+    "finetuning_task": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "hidden_size": 1024,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "initializer_factor": 0.02,
+    "is_decoder": false,
+    "is_encoder_decoder": false,
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "layerdrop": 0.0,
+    "length_penalty": 1.0,
+    "max_length": 20,
+    "max_position_embeddings": 2048,
+    "min_length": 0,
+    "model_type": "musicgen_decoder",
+    "no_repeat_ngram_size": 0,
+    "num_attention_heads": 16,
+    "num_beam_groups": 1,
+    "num_beams": 1,
+    "num_codebooks": 4,
+    "num_hidden_layers": 24,
+    "num_return_sequences": 1,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_scores": false,
+    "pad_token_id": 2048,
+    "prefix": null,
+    "problem_type": null,
+    "pruned_heads": {},
+    "remove_invalid_values": false,
+    "repetition_penalty": 1.0,
+    "return_dict": true,
+    "return_dict_in_generate": false,
+    "scale_embedding": false,
+    "sep_token_id": null,
+    "suppress_tokens": null,
+    "task_specific_params": null,
+    "temperature": 1.0,
+    "tf_legacy_loss": false,
+    "tie_encoder_decoder": false,
+    "tie_word_embeddings": false,
+    "tokenizer_class": null,
+    "top_k": 50,
+    "top_p": 1.0,
+    "torch_dtype": null,
+    "torchscript": false,
+    "typical_p": 1.0,
+    "use_bfloat16": false,
+    "use_cache": true,
+    "vocab_size": 2048
+  },
+  "is_encoder_decoder": true,
+  "model_type": "musicgen",
+  "text_encoder": {
+    "_name_or_path": "t5-base",
+    "add_cross_attention": false,
+    "architectures": [
+      "T5ForConditionalGeneration"
+    ],
+    "bad_words_ids": null,
+    "begin_suppress_tokens": null,
+    "bos_token_id": null,
+    "chunk_size_feed_forward": 0,
+    "classifier_dropout": 0.0,
+    "cross_attention_hidden_size": null,
+    "d_ff": 3072,
+    "d_kv": 64,
+    "d_model": 768,
+    "decoder_start_token_id": 0,
+    "dense_act_fn": "relu",
+    "diversity_penalty": 0.0,
+    "do_sample": false,
+    "dropout_rate": 0.1,
+    "early_stopping": false,
+    "encoder_no_repeat_ngram_size": 0,
+    "eos_token_id": 1,
+    "exponential_decay_length_penalty": null,
+    "feed_forward_proj": "relu",
+    "finetuning_task": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "initializer_factor": 1.0,
+    "is_decoder": false,
+    "is_encoder_decoder": true,
+    "is_gated_act": false,
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "layer_norm_epsilon": 1e-06,
+    "length_penalty": 1.0,
+    "max_length": 20,
+    "min_length": 0,
+    "model_type": "t5",
+    "n_positions": 512,
+    "no_repeat_ngram_size": 0,
+    "num_beam_groups": 1,
+    "num_beams": 1,
+    "num_decoder_layers": 12,
+    "num_heads": 12,
+    "num_layers": 12,
+    "num_return_sequences": 1,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_past": true,
+    "output_scores": false,
+    "pad_token_id": 0,
+    "prefix": null,
+    "problem_type": null,
+    "pruned_heads": {},
+    "relative_attention_max_distance": 128,
+    "relative_attention_num_buckets": 32,
+    "remove_invalid_values": false,
+    "repetition_penalty": 1.0,
+    "return_dict": true,
+    "return_dict_in_generate": false,
+    "sep_token_id": null,
+    "suppress_tokens": null,
+    "task_specific_params": {
+      "summarization": {
+        "early_stopping": true,
+        "length_penalty": 2.0,
+        "max_length": 200,
+        "min_length": 30,
+        "no_repeat_ngram_size": 3,
+        "num_beams": 4,
+        "prefix": "summarize: "
+      },
+      "translation_en_to_de": {
+        "early_stopping": true,
+        "max_length": 300,
+        "num_beams": 4,
+        "prefix": "translate English to German: "
+      },
+      "translation_en_to_fr": {
+        "early_stopping": true,
+        "max_length": 300,
+        "num_beams": 4,
+        "prefix": "translate English to French: "
+      },
+      "translation_en_to_ro": {
+        "early_stopping": true,
+        "max_length": 300,
+        "num_beams": 4,
+        "prefix": "translate English to Romanian: "
+      }
+    },
+    "temperature": 1.0,
+    "tf_legacy_loss": false,
+    "tie_encoder_decoder": false,
+    "tie_word_embeddings": true,
+    "tokenizer_class": null,
+    "top_k": 50,
+    "top_p": 1.0,
+    "torch_dtype": null,
+    "torchscript": false,
+    "typical_p": 1.0,
+    "use_bfloat16": false,
+    "use_cache": true,
+    "vocab_size": 32128
+  },
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.0"
+}
+
+loading configuration file preprocessor_config.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/preprocessor_config.json
+loading configuration file preprocessor_config.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/preprocessor_config.json
+Feature extractor EncodecFeatureExtractor {
+  "chunk_length_s": null,
+  "feature_extractor_type": "EncodecFeatureExtractor",
+  "feature_size": 1,
+  "overlap": null,
+  "padding_side": "left",
+  "padding_value": 0.0,
+  "processor_class": "MusicgenProcessor",
+  "return_attention_mask": true,
+  "sampling_rate": 32000
+}
+
+loading file spiece.model from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/spiece.model
+loading file tokenizer.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/tokenizer.json
+loading file added_tokens.json from cache at None
+loading file special_tokens_map.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/special_tokens_map.json
+loading file tokenizer_config.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/tokenizer_config.json
+Processor MusicgenProcessor:
+- feature_extractor: EncodecFeatureExtractor {
+  "chunk_length_s": null,
+  "feature_extractor_type": "EncodecFeatureExtractor",
+  "feature_size": 1,
+  "overlap": null,
+  "padding_side": "left",
+  "padding_value": 0.0,
+  "processor_class": "MusicgenProcessor",
+  "return_attention_mask": true,
+  "sampling_rate": 32000
+}
+
+- tokenizer: T5TokenizerFast(name_or_path='facebook/musicgen-small', vocab_size=32100, model_max_length=512, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'eos_token': '</s>', 'unk_token': '<unk>', 'pad_token': '<pad>', 'additional_special_tokens': ['<extra_id_0>', '<extra_id_1>', '<extra_id_2>', '<extra_id_3>', '<extra_id_4>', '<extra_id_5>', '<extra_id_6>', '<extra_id_7>', '<extra_id_8>', '<extra_id_9>', '<extra_id_10>', '<extra_id_11>', '<extra_id_12>', '<extra_id_13>', '<extra_id_14>', '<extra_id_15>', '<extra_id_16>', '<extra_id_17>', '<extra_id_18>', '<extra_id_19>', '<extra_id_20>', '<extra_id_21>', '<extra_id_22>', '<extra_id_23>', '<extra_id_24>', '<extra_id_25>', '<extra_id_26>', '<extra_id_27>', '<extra_id_28>', '<extra_id_29>', '<extra_id_30>', '<extra_id_31>', '<extra_id_32>', '<extra_id_33>', '<extra_id_34>', '<extra_id_35>', '<extra_id_36>', '<extra_id_37>', '<extra_id_38>', '<extra_id_39>', '<extra_id_40>', '<extra_id_41>', '<extra_id_42>', '<extra_id_43>', '<extra_id_44>', '<extra_id_45>', '<extra_id_46>', '<extra_id_47>', '<extra_id_48>', '<extra_id_49>', '<extra_id_50>', '<extra_id_51>', '<extra_id_52>', '<extra_id_53>', '<extra_id_54>', '<extra_id_55>', '<extra_id_56>', '<extra_id_57>', '<extra_id_58>', '<extra_id_59>', '<extra_id_60>', '<extra_id_61>', '<extra_id_62>', '<extra_id_63>', '<extra_id_64>', '<extra_id_65>', '<extra_id_66>', '<extra_id_67>', '<extra_id_68>', '<extra_id_69>', '<extra_id_70>', '<extra_id_71>', '<extra_id_72>', '<extra_id_73>', '<extra_id_74>', '<extra_id_75>', '<extra_id_76>', '<extra_id_77>', '<extra_id_78>', '<extra_id_79>', '<extra_id_80>', '<extra_id_81>', '<extra_id_82>', '<extra_id_83>', '<extra_id_84>', '<extra_id_85>', '<extra_id_86>', '<extra_id_87>', '<extra_id_88>', '<extra_id_89>', '<extra_id_90>', '<extra_id_91>', '<extra_id_92>', '<extra_id_93>', '<extra_id_94>', '<extra_id_95>', '<extra_id_96>', '<extra_id_97>', '<extra_id_98>', '<extra_id_99>']}, clean_up_tokenization_spaces=True),  added_tokens_decoder={
+	0: AddedToken("<pad>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	1: AddedToken("</s>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	2: AddedToken("<unk>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32000: AddedToken("<extra_id_99>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32001: AddedToken("<extra_id_98>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32002: AddedToken("<extra_id_97>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32003: AddedToken("<extra_id_96>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32004: AddedToken("<extra_id_95>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32005: AddedToken("<extra_id_94>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32006: AddedToken("<extra_id_93>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32007: AddedToken("<extra_id_92>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32008: AddedToken("<extra_id_91>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32009: AddedToken("<extra_id_90>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32010: AddedToken("<extra_id_89>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32011: AddedToken("<extra_id_88>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32012: AddedToken("<extra_id_87>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32013: AddedToken("<extra_id_86>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32014: AddedToken("<extra_id_85>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32015: AddedToken("<extra_id_84>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32016: AddedToken("<extra_id_83>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32017: AddedToken("<extra_id_82>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32018: AddedToken("<extra_id_81>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32019: AddedToken("<extra_id_80>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32020: AddedToken("<extra_id_79>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32021: AddedToken("<extra_id_78>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32022: AddedToken("<extra_id_77>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32023: AddedToken("<extra_id_76>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32024: AddedToken("<extra_id_75>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32025: AddedToken("<extra_id_74>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32026: AddedToken("<extra_id_73>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32027: AddedToken("<extra_id_72>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32028: AddedToken("<extra_id_71>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32029: AddedToken("<extra_id_70>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32030: AddedToken("<extra_id_69>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32031: AddedToken("<extra_id_68>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32032: AddedToken("<extra_id_67>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32033: AddedToken("<extra_id_66>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32034: AddedToken("<extra_id_65>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32035: AddedToken("<extra_id_64>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32036: AddedToken("<extra_id_63>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32037: AddedToken("<extra_id_62>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32038: AddedToken("<extra_id_61>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32039: AddedToken("<extra_id_60>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32040: AddedToken("<extra_id_59>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32041: AddedToken("<extra_id_58>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32042: AddedToken("<extra_id_57>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32043: AddedToken("<extra_id_56>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32044: AddedToken("<extra_id_55>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32045: AddedToken("<extra_id_54>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32046: AddedToken("<extra_id_53>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32047: AddedToken("<extra_id_52>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32048: AddedToken("<extra_id_51>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32049: AddedToken("<extra_id_50>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32050: AddedToken("<extra_id_49>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32051: AddedToken("<extra_id_48>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32052: AddedToken("<extra_id_47>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32053: AddedToken("<extra_id_46>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32054: AddedToken("<extra_id_45>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32055: AddedToken("<extra_id_44>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32056: AddedToken("<extra_id_43>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32057: AddedToken("<extra_id_42>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32058: AddedToken("<extra_id_41>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32059: AddedToken("<extra_id_40>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32060: AddedToken("<extra_id_39>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32061: AddedToken("<extra_id_38>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32062: AddedToken("<extra_id_37>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32063: AddedToken("<extra_id_36>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32064: AddedToken("<extra_id_35>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32065: AddedToken("<extra_id_34>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32066: AddedToken("<extra_id_33>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32067: AddedToken("<extra_id_32>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32068: AddedToken("<extra_id_31>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32069: AddedToken("<extra_id_30>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32070: AddedToken("<extra_id_29>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32071: AddedToken("<extra_id_28>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32072: AddedToken("<extra_id_27>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32073: AddedToken("<extra_id_26>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32074: AddedToken("<extra_id_25>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32075: AddedToken("<extra_id_24>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32076: AddedToken("<extra_id_23>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32077: AddedToken("<extra_id_22>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32078: AddedToken("<extra_id_21>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32079: AddedToken("<extra_id_20>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32080: AddedToken("<extra_id_19>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32081: AddedToken("<extra_id_18>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32082: AddedToken("<extra_id_17>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32083: AddedToken("<extra_id_16>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32084: AddedToken("<extra_id_15>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32085: AddedToken("<extra_id_14>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32086: AddedToken("<extra_id_13>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32087: AddedToken("<extra_id_12>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32088: AddedToken("<extra_id_11>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32089: AddedToken("<extra_id_10>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32090: AddedToken("<extra_id_9>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32091: AddedToken("<extra_id_8>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32092: AddedToken("<extra_id_7>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32093: AddedToken("<extra_id_6>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32094: AddedToken("<extra_id_5>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32095: AddedToken("<extra_id_4>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32096: AddedToken("<extra_id_3>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32097: AddedToken("<extra_id_2>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32098: AddedToken("<extra_id_1>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	32099: AddedToken("<extra_id_0>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+}
+
+{
+  "processor_class": "MusicgenProcessor"
+}
+
+loading weights file model.safetensors from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/model.safetensors
+Generate config GenerationConfig {
+  "decoder_start_token_id": 2047,
+  "pad_token_id": 2047
+}
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+/usr/local/lib/python3.12/dist-packages/transformers/models/encodec/modeling_encodec.py:123: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.register_buffer("padding_total", torch.tensor(kernel_size - stride, dtype=torch.int64), persistent=False)
+/usr/local/lib/python3.12/dist-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+/usr/local/lib/python3.12/dist-packages/transformers/models/encodec/modeling_encodec.py:123: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.register_buffer("padding_total", torch.tensor(kernel_size - stride, dtype=torch.int64), persistent=False)
+Generate config GenerationConfig {
+  "bos_token_id": 2048,
+  "decoder_start_token_id": 2047,
+  "pad_token_id": 2047
+}
+
+All model checkpoint weights were used when initializing MusicgenForConditionalGeneration.
+
+All the weights of MusicgenForConditionalGeneration were initialized from the model checkpoint at facebook/musicgen-small.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use MusicgenForConditionalGeneration for predictions without further training.
+loading configuration file generation_config.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/generation_config.json
+Generate config GenerationConfig {
+  "bos_token_id": 2048,
+  "decoder_start_token_id": 2048,
+  "do_sample": true,
+  "guidance_scale": 3.0,
+  "max_length": 1500,
+  "pad_token_id": 2048
+}
+
+loading configuration file preprocessor_config.json from cache at /root/.cache/huggingface/hub/models--facebook--encodec_32khz/snapshots/d0c45384f6c44db055f78200cfdcb9c1c8706727/preprocessor_config.json
+Feature extractor EncodecFeatureExtractor {
+  "chunk_length_s": null,
+  "feature_extractor_type": "EncodecFeatureExtractor",
+  "feature_size": 1,
+  "overlap": null,
+  "padding_side": "right",
+  "padding_value": 0.0,
+  "return_attention_mask": true,
+  "sampling_rate": 32000
+}
+
+Feature extractor saved in ./musicgen-vietnamese-lora/preprocessor_config.json
+tokenizer config file saved in ./musicgen-vietnamese-lora/tokenizer_config.json
+Special tokens file saved in ./musicgen-vietnamese-lora/special_tokens_map.json
+Copy vocab file to ./musicgen-vietnamese-lora/spiece.model
+Configuration saved in ./musicgen-vietnamese-lora/config.json
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W511 08:12:05.261155866 ProcessGroupNCCL.cpp:5138] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+trainable params: 10,645,568 || all params: 599,627,394 || trainable%: 1.7753638520390882
+05/11/2026 08:12:06 - INFO - __main__ - Modules with Lora: ['decoder.model.decoder.embed_tokens.0', 'decoder.model.decoder.embed_tokens.1', 'decoder.model.decoder.embed_tokens.2', 'decoder.model.decoder.embed_tokens.3', 'decoder.model.decoder.layers.0.self_attn.k_proj', 'decoder.model.decoder.layers.0.self_attn.v_proj', 'decoder.model.decoder.layers.0.self_attn.q_proj', 'decoder.model.decoder.layers.0.self_attn.out_proj', 'decoder.model.decoder.layers.0.encoder_attn.k_proj', 'decoder.model.decoder.layers.0.encoder_attn.v_proj', 'decoder.model.decoder.layers.0.encoder_attn.q_proj', 'decoder.model.decoder.layers.0.encoder_attn.out_proj', 'decoder.model.decoder.layers.0.fc1', 'decoder.model.decoder.layers.0.fc2', 'decoder.model.decoder.layers.1.self_attn.k_proj', 'decoder.model.decoder.layers.1.self_attn.v_proj', 'decoder.model.decoder.layers.1.self_attn.q_proj', 'decoder.model.decoder.layers.1.self_attn.out_proj', 'decoder.model.decoder.layers.1.encoder_attn.k_proj', 'decoder.model.decoder.layers.1.encoder_attn.v_proj', 'decoder.model.decoder.layers.1.encoder_attn.q_proj', 'decoder.model.decoder.layers.1.encoder_attn.out_proj', 'decoder.model.decoder.layers.1.fc1', 'decoder.model.decoder.layers.1.fc2', 'decoder.model.decoder.layers.2.self_attn.k_proj', 'decoder.model.decoder.layers.2.self_attn.v_proj', 'decoder.model.decoder.layers.2.self_attn.q_proj', 'decoder.model.decoder.layers.2.self_attn.out_proj', 'decoder.model.decoder.layers.2.encoder_attn.k_proj', 'decoder.model.decoder.layers.2.encoder_attn.v_proj', 'decoder.model.decoder.layers.2.encoder_attn.q_proj', 'decoder.model.decoder.layers.2.encoder_attn.out_proj', 'decoder.model.decoder.layers.2.fc1', 'decoder.model.decoder.layers.2.fc2', 'decoder.model.decoder.layers.3.self_attn.k_proj', 'decoder.model.decoder.layers.3.self_attn.v_proj', 'decoder.model.decoder.layers.3.self_attn.q_proj', 'decoder.model.decoder.layers.3.self_attn.out_proj', 'decoder.model.decoder.layers.3.encoder_attn.k_proj', 'decoder.model.decoder.layers.3.encoder_attn.v_proj', 'decoder.model.decoder.layers.3.encoder_attn.q_proj', 'decoder.model.decoder.layers.3.encoder_attn.out_proj', 'decoder.model.decoder.layers.3.fc1', 'decoder.model.decoder.layers.3.fc2', 'decoder.model.decoder.layers.4.self_attn.k_proj', 'decoder.model.decoder.layers.4.self_attn.v_proj', 'decoder.model.decoder.layers.4.self_attn.q_proj', 'decoder.model.decoder.layers.4.self_attn.out_proj', 'decoder.model.decoder.layers.4.encoder_attn.k_proj', 'decoder.model.decoder.layers.4.encoder_attn.v_proj', 'decoder.model.decoder.layers.4.encoder_attn.q_proj', 'decoder.model.decoder.layers.4.encoder_attn.out_proj', 'decoder.model.decoder.layers.4.fc1', 'decoder.model.decoder.layers.4.fc2', 'decoder.model.decoder.layers.5.self_attn.k_proj', 'decoder.model.decoder.layers.5.self_attn.v_proj', 'decoder.model.decoder.layers.5.self_attn.q_proj', 'decoder.model.decoder.layers.5.self_attn.out_proj', 'decoder.model.decoder.layers.5.encoder_attn.k_proj', 'decoder.model.decoder.layers.5.encoder_attn.v_proj', 'decoder.model.decoder.layers.5.encoder_attn.q_proj', 'decoder.model.decoder.layers.5.encoder_attn.out_proj', 'decoder.model.decoder.layers.5.fc1', 'decoder.model.decoder.layers.5.fc2', 'decoder.model.decoder.layers.6.self_attn.k_proj', 'decoder.model.decoder.layers.6.self_attn.v_proj', 'decoder.model.decoder.layers.6.self_attn.q_proj', 'decoder.model.decoder.layers.6.self_attn.out_proj', 'decoder.model.decoder.layers.6.encoder_attn.k_proj', 'decoder.model.decoder.layers.6.encoder_attn.v_proj', 'decoder.model.decoder.layers.6.encoder_attn.q_proj', 'decoder.model.decoder.layers.6.encoder_attn.out_proj', 'decoder.model.decoder.layers.6.fc1', 'decoder.model.decoder.layers.6.fc2', 'decoder.model.decoder.layers.7.self_attn.k_proj', 'decoder.model.decoder.layers.7.self_attn.v_proj', 'decoder.model.decoder.layers.7.self_attn.q_proj', 'decoder.model.decoder.layers.7.self_attn.out_proj', 'decoder.model.decoder.layers.7.encoder_attn.k_proj', 'decoder.model.decoder.layers.7.encoder_attn.v_proj', 'decoder.model.decoder.layers.7.encoder_attn.q_proj', 'decoder.model.decoder.layers.7.encoder_attn.out_proj', 'decoder.model.decoder.layers.7.fc1', 'decoder.model.decoder.layers.7.fc2', 'decoder.model.decoder.layers.8.self_attn.k_proj', 'decoder.model.decoder.layers.8.self_attn.v_proj', 'decoder.model.decoder.layers.8.self_attn.q_proj', 'decoder.model.decoder.layers.8.self_attn.out_proj', 'decoder.model.decoder.layers.8.encoder_attn.k_proj', 'decoder.model.decoder.layers.8.encoder_attn.v_proj', 'decoder.model.decoder.layers.8.encoder_attn.q_proj', 'decoder.model.decoder.layers.8.encoder_attn.out_proj', 'decoder.model.decoder.layers.8.fc1', 'decoder.model.decoder.layers.8.fc2', 'decoder.model.decoder.layers.9.self_attn.k_proj', 'decoder.model.decoder.layers.9.self_attn.v_proj', 'decoder.model.decoder.layers.9.self_attn.q_proj', 'decoder.model.decoder.layers.9.self_attn.out_proj', 'decoder.model.decoder.layers.9.encoder_attn.k_proj', 'decoder.model.decoder.layers.9.encoder_attn.v_proj', 'decoder.model.decoder.layers.9.encoder_attn.q_proj', 'decoder.model.decoder.layers.9.encoder_attn.out_proj', 'decoder.model.decoder.layers.9.fc1', 'decoder.model.decoder.layers.9.fc2', 'decoder.model.decoder.layers.10.self_attn.k_proj', 'decoder.model.decoder.layers.10.self_attn.v_proj', 'decoder.model.decoder.layers.10.self_attn.q_proj', 'decoder.model.decoder.layers.10.self_attn.out_proj', 'decoder.model.decoder.layers.10.encoder_attn.k_proj', 'decoder.model.decoder.layers.10.encoder_attn.v_proj', 'decoder.model.decoder.layers.10.encoder_attn.q_proj', 'decoder.model.decoder.layers.10.encoder_attn.out_proj', 'decoder.model.decoder.layers.10.fc1', 'decoder.model.decoder.layers.10.fc2', 'decoder.model.decoder.layers.11.self_attn.k_proj', 'decoder.model.decoder.layers.11.self_attn.v_proj', 'decoder.model.decoder.layers.11.self_attn.q_proj', 'decoder.model.decoder.layers.11.self_attn.out_proj', 'decoder.model.decoder.layers.11.encoder_attn.k_proj', 'decoder.model.decoder.layers.11.encoder_attn.v_proj', 'decoder.model.decoder.layers.11.encoder_attn.q_proj', 'decoder.model.decoder.layers.11.encoder_attn.out_proj', 'decoder.model.decoder.layers.11.fc1', 'decoder.model.decoder.layers.11.fc2', 'decoder.model.decoder.layers.12.self_attn.k_proj', 'decoder.model.decoder.layers.12.self_attn.v_proj', 'decoder.model.decoder.layers.12.self_attn.q_proj', 'decoder.model.decoder.layers.12.self_attn.out_proj', 'decoder.model.decoder.layers.12.encoder_attn.k_proj', 'decoder.model.decoder.layers.12.encoder_attn.v_proj', 'decoder.model.decoder.layers.12.encoder_attn.q_proj', 'decoder.model.decoder.layers.12.encoder_attn.out_proj', 'decoder.model.decoder.layers.12.fc1', 'decoder.model.decoder.layers.12.fc2', 'decoder.model.decoder.layers.13.self_attn.k_proj', 'decoder.model.decoder.layers.13.self_attn.v_proj', 'decoder.model.decoder.layers.13.self_attn.q_proj', 'decoder.model.decoder.layers.13.self_attn.out_proj', 'decoder.model.decoder.layers.13.encoder_attn.k_proj', 'decoder.model.decoder.layers.13.encoder_attn.v_proj', 'decoder.model.decoder.layers.13.encoder_attn.q_proj', 'decoder.model.decoder.layers.13.encoder_attn.out_proj', 'decoder.model.decoder.layers.13.fc1', 'decoder.model.decoder.layers.13.fc2', 'decoder.model.decoder.layers.14.self_attn.k_proj', 'decoder.model.decoder.layers.14.self_attn.v_proj', 'decoder.model.decoder.layers.14.self_attn.q_proj', 'decoder.model.decoder.layers.14.self_attn.out_proj', 'decoder.model.decoder.layers.14.encoder_attn.k_proj', 'decoder.model.decoder.layers.14.encoder_attn.v_proj', 'decoder.model.decoder.layers.14.encoder_attn.q_proj', 'decoder.model.decoder.layers.14.encoder_attn.out_proj', 'decoder.model.decoder.layers.14.fc1', 'decoder.model.decoder.layers.14.fc2', 'decoder.model.decoder.layers.15.self_attn.k_proj', 'decoder.model.decoder.layers.15.self_attn.v_proj', 'decoder.model.decoder.layers.15.self_attn.q_proj', 'decoder.model.decoder.layers.15.self_attn.out_proj', 'decoder.model.decoder.layers.15.encoder_attn.k_proj', 'decoder.model.decoder.layers.15.encoder_attn.v_proj', 'decoder.model.decoder.layers.15.encoder_attn.q_proj', 'decoder.model.decoder.layers.15.encoder_attn.out_proj', 'decoder.model.decoder.layers.15.fc1', 'decoder.model.decoder.layers.15.fc2', 'decoder.model.decoder.layers.16.self_attn.k_proj', 'decoder.model.decoder.layers.16.self_attn.v_proj', 'decoder.model.decoder.layers.16.self_attn.q_proj', 'decoder.model.decoder.layers.16.self_attn.out_proj', 'decoder.model.decoder.layers.16.encoder_attn.k_proj', 'decoder.model.decoder.layers.16.encoder_attn.v_proj', 'decoder.model.decoder.layers.16.encoder_attn.q_proj', 'decoder.model.decoder.layers.16.encoder_attn.out_proj', 'decoder.model.decoder.layers.16.fc1', 'decoder.model.decoder.layers.16.fc2', 'decoder.model.decoder.layers.17.self_attn.k_proj', 'decoder.model.decoder.layers.17.self_attn.v_proj', 'decoder.model.decoder.layers.17.self_attn.q_proj', 'decoder.model.decoder.layers.17.self_attn.out_proj', 'decoder.model.decoder.layers.17.encoder_attn.k_proj', 'decoder.model.decoder.layers.17.encoder_attn.v_proj', 'decoder.model.decoder.layers.17.encoder_attn.q_proj', 'decoder.model.decoder.layers.17.encoder_attn.out_proj', 'decoder.model.decoder.layers.17.fc1', 'decoder.model.decoder.layers.17.fc2', 'decoder.model.decoder.layers.18.self_attn.k_proj', 'decoder.model.decoder.layers.18.self_attn.v_proj', 'decoder.model.decoder.layers.18.self_attn.q_proj', 'decoder.model.decoder.layers.18.self_attn.out_proj', 'decoder.model.decoder.layers.18.encoder_attn.k_proj', 'decoder.model.decoder.layers.18.encoder_attn.v_proj', 'decoder.model.decoder.layers.18.encoder_attn.q_proj', 'decoder.model.decoder.layers.18.encoder_attn.out_proj', 'decoder.model.decoder.layers.18.fc1', 'decoder.model.decoder.layers.18.fc2', 'decoder.model.decoder.layers.19.self_attn.k_proj', 'decoder.model.decoder.layers.19.self_attn.v_proj', 'decoder.model.decoder.layers.19.self_attn.q_proj', 'decoder.model.decoder.layers.19.self_attn.out_proj', 'decoder.model.decoder.layers.19.encoder_attn.k_proj', 'decoder.model.decoder.layers.19.encoder_attn.v_proj', 'decoder.model.decoder.layers.19.encoder_attn.q_proj', 'decoder.model.decoder.layers.19.encoder_attn.out_proj', 'decoder.model.decoder.layers.19.fc1', 'decoder.model.decoder.layers.19.fc2', 'decoder.model.decoder.layers.20.self_attn.k_proj', 'decoder.model.decoder.layers.20.self_attn.v_proj', 'decoder.model.decoder.layers.20.self_attn.q_proj', 'decoder.model.decoder.layers.20.self_attn.out_proj', 'decoder.model.decoder.layers.20.encoder_attn.k_proj', 'decoder.model.decoder.layers.20.encoder_attn.v_proj', 'decoder.model.decoder.layers.20.encoder_attn.q_proj', 'decoder.model.decoder.layers.20.encoder_attn.out_proj', 'decoder.model.decoder.layers.20.fc1', 'decoder.model.decoder.layers.20.fc2', 'decoder.model.decoder.layers.21.self_attn.k_proj', 'decoder.model.decoder.layers.21.self_attn.v_proj', 'decoder.model.decoder.layers.21.self_attn.q_proj', 'decoder.model.decoder.layers.21.self_attn.out_proj', 'decoder.model.decoder.layers.21.encoder_attn.k_proj', 'decoder.model.decoder.layers.21.encoder_attn.v_proj', 'decoder.model.decoder.layers.21.encoder_attn.q_proj', 'decoder.model.decoder.layers.21.encoder_attn.out_proj', 'decoder.model.decoder.layers.21.fc1', 'decoder.model.decoder.layers.21.fc2', 'decoder.model.decoder.layers.22.self_attn.k_proj', 'decoder.model.decoder.layers.22.self_attn.v_proj', 'decoder.model.decoder.layers.22.self_attn.q_proj', 'decoder.model.decoder.layers.22.self_attn.out_proj', 'decoder.model.decoder.layers.22.encoder_attn.k_proj', 'decoder.model.decoder.layers.22.encoder_attn.v_proj', 'decoder.model.decoder.layers.22.encoder_attn.q_proj', 'decoder.model.decoder.layers.22.encoder_attn.out_proj', 'decoder.model.decoder.layers.22.fc1', 'decoder.model.decoder.layers.22.fc2', 'decoder.model.decoder.layers.23.self_attn.k_proj', 'decoder.model.decoder.layers.23.self_attn.v_proj', 'decoder.model.decoder.layers.23.self_attn.q_proj', 'decoder.model.decoder.layers.23.self_attn.out_proj', 'decoder.model.decoder.layers.23.encoder_attn.k_proj', 'decoder.model.decoder.layers.23.encoder_attn.v_proj', 'decoder.model.decoder.layers.23.encoder_attn.q_proj', 'decoder.model.decoder.layers.23.encoder_attn.out_proj', 'decoder.model.decoder.layers.23.fc1', 'decoder.model.decoder.layers.23.fc2', 'decoder.lm_heads.0', 'decoder.lm_heads.1', 'decoder.lm_heads.2', 'decoder.lm_heads.3', 'enc_to_dec_proj']
+05/11/2026 08:12:06 - WARNING - __main__ - Kaggle environment detected. Capping evaluation samples to 50 for stability.
+trainable params: 10,645,568 || all params: 599,627,394 || trainable%: 1.7753638520390882
+05/11/2026 08:12:06 - WARNING - __main__ - Kaggle environment detected. Capping evaluation samples to 50 for stability.
+Using auto half precision backend
+***** Running training *****
+  Num examples = 4,164
+  Num Epochs = 5
+  Instantaneous batch size per device = 1
+  Total train batch size (w. parallel, distributed & accumulation) = 16
+  Gradient Accumulation steps = 8
+  Total optimization steps = 1,300
+  Number of trainable parameters = 10,645,568
+Automatic Weights & Biases logging enabled, to disable set os.environ["WANDB_DISABLED"] = "true"
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+wandb: Tracking run with wandb version 0.25.0
+wandb: W&B syncing is set to `offline` in this directory. Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Run data is saved locally in /kaggle/working/musicgen-dreamboothing/wandb/offline-run-20260511_081210-beggbf5n
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+`use_cache=True` is incompatible with gradient checkpointing`. Setting `use_cache=False`...
+`use_cache=True` is incompatible with gradient checkpointing`. Setting `use_cache=False`...
+{'loss': 8.698, 'grad_norm': 1.7389873266220093, 'learning_rate': 0.00019846153846153847, 'epoch': 0.03842459173871278}
+{'loss': 7.2713, 'grad_norm': 0.35192176699638367, 'learning_rate': 0.00019692307692307696, 'epoch': 0.07684918347742556}
+{'loss': 7.027, 'grad_norm': 0.5695177912712097, 'learning_rate': 0.0001953846153846154, 'epoch': 0.11527377521613832}
+{'loss': 7.0658, 'grad_norm': 0.3057410418987274, 'learning_rate': 0.00019384615384615385, 'epoch': 0.15369836695485112}
+{'loss': 7.0322, 'grad_norm': 0.3515821397304535, 'learning_rate': 0.00019230769230769233, 'epoch': 0.19212295869356388}
+{'loss': 6.8865, 'grad_norm': 0.6939248442649841, 'learning_rate': 0.0001907692307692308, 'epoch': 0.23054755043227665}
+{'loss': 6.9563, 'grad_norm': 0.3013865351676941, 'learning_rate': 0.00018923076923076923, 'epoch': 0.2689721421709894}
+{'loss': 6.8603, 'grad_norm': 0.39914649724960327, 'learning_rate': 0.0001876923076923077, 'epoch': 0.30739673390970224}
+{'loss': 6.7912, 'grad_norm': 0.47544145584106445, 'learning_rate': 0.00018615384615384617, 'epoch': 0.345821325648415}
+{'loss': 6.7394, 'grad_norm': 0.5100067257881165, 'learning_rate': 0.00018461538461538463, 'epoch': 0.38424591738712777}
+***** Running Evaluation *****
+  Num examples = 50
+  Batch size = 1
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a T5TokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+{'eval_runtime': 4.5499, 'eval_samples_per_second': 10.989, 'eval_steps_per_second': 5.495, 'epoch': 0.38424591738712777}
+Saving model checkpoint to ./musicgen-vietnamese-lora/checkpoint-100
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/kaggle/working/musicgen-dreamboothing/dreambooth_musicgen.py", line 1374, in <module>
+[rank1]:     main()
+[rank1]:   File "/kaggle/working/musicgen-dreamboothing/dreambooth_musicgen.py", line 1310, in main
+[rank1]:     train_result = trainer.train(
+[rank1]:                    ^^^^^^^^^^^^^^
+[rank1]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 1859, in train
+[rank1]:     return inner_training_loop(
+[rank1]:            ^^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2278, in _inner_training_loop
+[rank1]:     self._maybe_log_save_evaluate(tr_loss, grad_norm, model, trial, epoch, ignore_keys_for_eval)
+[rank1]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2673, in _maybe_log_save_evaluate
+[rank1]:     self._save_checkpoint(model, trial, metrics=metrics)
+[rank1]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2765, in _save_checkpoint
+[rank1]:     metric_value = metrics[metric_to_check]
+[rank1]:                    ~~~~~~~^^^^^^^^^^^^^^^^^
+[rank1]: KeyError: 'eval_loss'
+/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py:943: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+loading configuration file config.json from cache at /root/.cache/huggingface/hub/models--facebook--musicgen-small/snapshots/4c8334b02c6ec4e8664a91979669a501ec497792/config.json
+Model config MusicgenConfig {
+  "architectures": [
+    "MusicgenForConditionalGeneration"
+  ],
+  "audio_encoder": {
+    "_name_or_path": "facebook/encodec_32khz",
+    "add_cross_attention": false,
+    "architectures": [
+      "EncodecModel"
+    ],
+    "audio_channels": 1,
+    "bad_words_ids": null,
+    "begin_suppress_tokens": null,
+    "bos_token_id": null,
+    "chunk_length_s": null,
+    "chunk_size_feed_forward": 0,
+    "codebook_dim": 128,
+    "codebook_size": 2048,
+    "compress": 2,
+    "cross_attention_hidden_size": null,
+    "decoder_start_token_id": null,
+    "dilation_growth_rate": 2,
+    "diversity_penalty": 0.0,
+    "do_sample": false,
+    "early_stopping": false,
+    "encoder_no_repeat_ngram_size": 0,
+    "eos_token_id": null,
+    "exponential_decay_length_penalty": null,
+    "finetuning_task": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "hidden_size": 128,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "is_decoder": false,
+    "is_encoder_decoder": false,
+    "kernel_size": 7,
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "last_kernel_size": 7,
+    "length_penalty": 1.0,
+    "max_length": 20,
+    "min_length": 0,
+    "model_type": "encodec",
+    "no_repeat_ngram_size": 0,
+    "norm_type": "weight_norm",
+    "normalize": false,
+    "num_beam_groups": 1,
+    "num_beams": 1,
+    "num_filters": 64,
+    "num_lstm_layers": 2,
+    "num_residual_layers": 1,
+    "num_return_sequences": 1,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_scores": false,
+    "overlap": null,
+    "pad_mode": "reflect",
+    "pad_token_id": null,
+    "prefix": null,
+    "problem_type": null,
+    "pruned_heads": {},
+    "remove_invalid_values": false,
+    "repetition_penalty": 1.0,
+    "residual_kernel_size": 3,
+    "return_dict": true,
+    "return_dict_in_generate": false,
+    "sampling_rate": 32000,
+    "sep_token_id": null,
+    "suppress_tokens": null,
+    "target_bandwidths": [
+      2.2
+    ],
+    "task_specific_params": null,
+    "temperature": 1.0,
+    "tf_legacy_loss": false,
+    "tie_encoder_decoder": false,
+    "tie_word_embeddings": true,
+    "tokenizer_class": null,
+    "top_k": 50,
+    "top_p": 1.0,
+    "torch_dtype": "float32",
+    "torchscript": false,
+    "trim_right_ratio": 1.0,
+    "typical_p": 1.0,
+    "upsampling_ratios": [
+      8,
+      5,
+      4,
+      4
+    ],
+    "use_bfloat16": false,
+    "use_causal_conv": false,
+    "use_conv_shortcut": false
+  },
+  "decoder": {
+    "_name_or_path": "",
+    "activation_dropout": 0.0,
+    "activation_function": "gelu",
+    "add_cross_attention": false,
+    "architectures": null,
+    "attention_dropout": 0.0,
+    "audio_channels": 1,
+    "bad_words_ids": null,
+    "begin_suppress_tokens": null,
+    "bos_token_id": 2048,
+    "chunk_size_feed_forward": 0,
+    "classifier_dropout": 0.0,
+    "cross_attention_hidden_size": null,
+    "decoder_start_token_id": null,
+    "diversity_penalty": 0.0,
+    "do_sample": false,
+    "dropout": 0.1,
+    "early_stopping": false,
+    "encoder_no_repeat_ngram_size": 0,
+    "eos_token_id": null,
+    "exponential_decay_length_penalty": null,
+    "ffn_dim": 4096,
+    "finetuning_task": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "hidden_size": 1024,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "initializer_factor": 0.02,
+    "is_decoder": false,
+    "is_encoder_decoder": false,
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "layerdrop": 0.0,
+    "length_penalty": 1.0,
+    "max_length": 20,
+    "max_position_embeddings": 2048,
+    "min_length": 0,
+    "model_type": "musicgen_decoder",
+    "no_repeat_ngram_size": 0,
+    "num_attention_heads": 16,
+    "num_beam_groups": 1,
+    "num_beams": 1,
+    "num_codebooks": 4,
+    "num_hidden_layers": 24,
+    "num_return_sequences": 1,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_scores": false,
+    "pad_token_id": 2048,
+    "prefix": null,
+    "problem_type": null,
+    "pruned_heads": {},
+    "remove_invalid_values": false,
+    "repetition_penalty": 1.0,
+    "return_dict": true,
+    "return_dict_in_generate": false,
+    "scale_embedding": false,
+    "sep_token_id": null,
+    "suppress_tokens": null,
+    "task_specific_params": null,
+    "temperature": 1.0,
+    "tf_legacy_loss": false,
+    "tie_encoder_decoder": false,
+    "tie_word_embeddings": false,
+    "tokenizer_class": null,
+    "top_k": 50,
+    "top_p": 1.0,
+    "torch_dtype": null,
+    "torchscript": false,
+    "typical_p": 1.0,
+    "use_bfloat16": false,
+    "use_cache": true,
+    "vocab_size": 2048
+  },
+  "is_encoder_decoder": true,
+  "model_type": "musicgen",
+  "text_encoder": {
+    "_name_or_path": "t5-base",
+    "add_cross_attention": false,
+    "architectures": [
+      "T5ForConditionalGeneration"
+    ],
+    "bad_words_ids": null,
+    "begin_suppress_tokens": null,
+    "bos_token_id": null,
+    "chunk_size_feed_forward": 0,
+    "classifier_dropout": 0.0,
+    "cross_attention_hidden_size": null,
+    "d_ff": 3072,
+    "d_kv": 64,
+    "d_model": 768,
+    "decoder_start_token_id": 0,
+    "dense_act_fn": "relu",
+    "diversity_penalty": 0.0,
+    "do_sample": false,
+    "dropout_rate": 0.1,
+    "early_stopping": false,
+    "encoder_no_repeat_ngram_size": 0,
+    "eos_token_id": 1,
+    "exponential_decay_length_penalty": null,
+    "feed_forward_proj": "relu",
+    "finetuning_task": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "initializer_factor": 1.0,
+    "is_decoder": false,
+    "is_encoder_decoder": true,
+    "is_gated_act": false,
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "layer_norm_epsilon": 1e-06,
+    "length_penalty": 1.0,
+    "max_length": 20,
+    "min_length": 0,
+    "model_type": "t5",
+    "n_positions": 512,
+    "no_repeat_ngram_size": 0,
+    "num_beam_groups": 1,
+    "num_beams": 1,
+    "num_decoder_layers": 12,
+    "num_heads": 12,
+    "num_layers": 12,
+    "num_return_sequences": 1,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_past": true,
+    "output_scores": false,
+    "pad_token_id": 0,
+    "prefix": null,
+    "problem_type": null,
+    "pruned_heads": {},
+    "relative_attention_max_distance": 128,
+    "relative_attention_num_buckets": 32,
+    "remove_invalid_values": false,
+    "repetition_penalty": 1.0,
+    "return_dict": true,
+    "return_dict_in_generate": false,
+    "sep_token_id": null,
+    "suppress_tokens": null,
+    "task_specific_params": {
+      "summarization": {
+        "early_stopping": true,
+        "length_penalty": 2.0,
+        "max_length": 200,
+        "min_length": 30,
+        "no_repeat_ngram_size": 3,
+        "num_beams": 4,
+        "prefix": "summarize: "
+      },
+      "translation_en_to_de": {
+        "early_stopping": true,
+        "max_length": 300,
+        "num_beams": 4,
+        "prefix": "translate English to German: "
+      },
+      "translation_en_to_fr": {
+        "early_stopping": true,
+        "max_length": 300,
+        "num_beams": 4,
+        "prefix": "translate English to French: "
+      },
+      "translation_en_to_ro": {
+        "early_stopping": true,
+        "max_length": 300,
+        "num_beams": 4,
+        "prefix": "translate English to Romanian: "
+      }
+    },
+    "temperature": 1.0,
+    "tf_legacy_loss": false,
+    "tie_encoder_decoder": false,
+    "tie_word_embeddings": true,
+    "tokenizer_class": null,
+    "top_k": 50,
+    "top_p": 1.0,
+    "torch_dtype": null,
+    "torchscript": false,
+    "typical_p": 1.0,
+    "use_bfloat16": false,
+    "use_cache": true,
+    "vocab_size": 32128
+  },
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.0"
+}
+
+Feature extractor saved in ./musicgen-vietnamese-lora/checkpoint-100/preprocessor_config.json
+tokenizer config file saved in ./musicgen-vietnamese-lora/checkpoint-100/tokenizer_config.json
+Special tokens file saved in ./musicgen-vietnamese-lora/checkpoint-100/special_tokens_map.json
+Copy vocab file to ./musicgen-vietnamese-lora/checkpoint-100/spiece.model
+Traceback (most recent call last):
+  File "/kaggle/working/musicgen-dreamboothing/dreambooth_musicgen.py", line 1374, in <module>
+    main()
+  File "/kaggle/working/musicgen-dreamboothing/dreambooth_musicgen.py", line 1310, in main
+    train_result = trainer.train(
+                   ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 1859, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2278, in _inner_training_loop
+    self._maybe_log_save_evaluate(tr_loss, grad_norm, model, trial, epoch, ignore_keys_for_eval)
+  File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2673, in _maybe_log_save_evaluate
+    self._save_checkpoint(model, trial, metrics=metrics)
+  File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2765, in _save_checkpoint
+    metric_value = metrics[metric_to_check]
+                   ~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'eval_loss'
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/kaggle/working/musicgen-dreamboothing/dreambooth_musicgen.py", line 1374, in <module>
+[rank0]:     main()
+[rank0]:   File "/kaggle/working/musicgen-dreamboothing/dreambooth_musicgen.py", line 1310, in main
+[rank0]:     train_result = trainer.train(
+[rank0]:                    ^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 1859, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2278, in _inner_training_loop
+[rank0]:     self._maybe_log_save_evaluate(tr_loss, grad_norm, model, trial, epoch, ignore_keys_for_eval)
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2673, in _maybe_log_save_evaluate
+[rank0]:     self._save_checkpoint(model, trial, metrics=metrics)
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 2765, in _save_checkpoint
+[rank0]:     metric_value = metrics[metric_to_check]
+[rank0]:                    ~~~~~~~^^^^^^^^^^^^^^^^^
+[rank0]: KeyError: 'eval_loss'
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /kaggle/working/musicgen-dreamboothing/wandb/offline-run-20260511_081210-beggbf5n
+wandb: Find logs at: wandb/offline-run-20260511_081210-beggbf5n/logs
+W0511 08:20:59.802000 2094 torch/distributed/elastic/multiprocessing/api.py:1010] Sending process 2102 closing signal SIGTERM
+E0511 08:21:00.118000 2094 torch/distributed/elastic/multiprocessing/api.py:984] failed (exitcode: 1) local_rank: 1 (pid: 2103) of binary: /usr/bin/python3
+Traceback (most recent call last):
+  File "/usr/local/bin/accelerate", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/accelerate/commands/accelerate_cli.py", line 50, in main
+    args.func(args)
+  File "/usr/local/lib/python3.12/dist-packages/accelerate/commands/launch.py", line 1272, in launch_command
+    multi_gpu_launcher(args)
+  File "/usr/local/lib/python3.12/dist-packages/accelerate/commands/launch.py", line 899, in multi_gpu_launcher
+    distrib_run.run(args)
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/run.py", line 982, in run
+    elastic_launch(
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/launcher/api.py", line 170, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/distributed/launcher/api.py", line 317, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+dreambooth_musicgen.py FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-05-11_08:21:00
+  host      : 34b1b36ffdef
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 2102)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-05-11_08:20:59
+  host      : 34b1b36ffdef
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 2103)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
